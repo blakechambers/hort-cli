@@ -1,10 +1,11 @@
 import { parse } from "./deps.ts";
 import { materializeByArgType } from "./shared/util.ts";
 import { formatBlockList } from "./deps.ts";
-import type { Task } from "./task.ts";
+import type { Task } from "./task.v2.ts";
 import type { Option } from "./option.ts";
 
 interface RunOpts {
+  task: Task<unknown>;
   args: (string | number)[];
   options: Record<string, string | number>;
 }
@@ -42,28 +43,7 @@ const commands = {
   "list": "list things",
 };
 
-async function run({ args, options }: RunOpts) {
-  // prints help message when the command not found
-  if (!(args.length > 0 && args[0] in { ...commands, help: "true" })) {
-    console.log("[main help message]");
-    Deno.exit(0);
-  }
-
-  const [commandArg, ...remainingOptions] = args;
-
-  if (commandArg === "help") {
-    await run({
-      args: remainingOptions,
-      options: { ...options, help: "true" },
-    });
-    return;
-  }
-
-  const { default: task, task: config } = await import(
-    `./example/cli/${commandArg}.ts`
-  );
-
-  const namedThings: Record<string, unknown> = {};
+async function run({ task, config, args, options }: RunOpts) {
 
   // prints command help message
   if (options.h || options.help) {
@@ -81,6 +61,8 @@ async function run({ args, options }: RunOpts) {
     return;
   }
 
+  const namedThings: Record<string, unknown> = {};
+
   for (const [index, argument] of config.arguments.entries()) {
     namedThings[argument.name] = materializeByArgType(
       argument.type,
@@ -95,10 +77,42 @@ async function run({ args, options }: RunOpts) {
   task(namedThings as unknown as Parameters<typeof task>[0]);
 }
 
+type CLIInput = number | string;
+
+interface MountOpts {
+  args: [CLIInput, ...Array<CLIInput>];
+  options: Record<string, CLIInput>;
+}
+
+async function mount({ args, options }: MountOpts) {
+  // prints help message when the command not found
+  if (!(args.length > 0 && args[0] in { ...commands, help: "true" })) {
+    console.log("[main help message]");
+    Deno.exit(0);
+  }
+
+  const [commandArg, ...remainingArgs] = args;
+
+  if (commandArg === "help") {
+    await run({
+      task: 
+      args: remainingOptions,
+      options: { ...options, help: "true" },
+    });
+    return;
+  }
+
+  const { default: task, task: config } = await import(
+    `./example/cli/${commandArg}.ts`
+  );
+}
+
 async function main() {
   const { _: args, ...options } = parse(Deno.args);
 
-  await run({ args, options });
+  // const task = new Task();
+
+  await run({ task, args, options });
 }
 
 export { main };

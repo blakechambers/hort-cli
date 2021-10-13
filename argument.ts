@@ -13,6 +13,10 @@ class Argument<TParams> {
 
     if (proc) proc(this);
   }
+
+  [Symbol.for("Deno.customInspect")](): string {
+    return `Argument { ${{ name: this.name }.toString()} }`;
+  }
 }
 
 export { Argument };

@@ -21,3 +21,6 @@ export const task = mountTasksDir("./cli");
   goal is to delegate to the next task instead.
 - [ ] test runner.ts
 - [ ] add file path argument type
+- [ ] tasks can either ensure all args are accounted for (leaf level tasks) or
+  not (grouping of tasks)
+- [ ] support a top level stdin full and stdin piped arg type
