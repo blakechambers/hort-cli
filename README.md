@@ -11,6 +11,37 @@ import { mountTasksDir } from "...";
 export const task = mountTasksDir("./cli");
 ```
 
+### runner v2 psuedo code
+
+```ts
+function run({task, args, options}) {
+  if (task.hasSubTasks) {
+    const firstArg, ...remainingArgs == args;
+
+    if firstArg == "help" {
+      // rerun with help flag added
+    }
+
+    if(firstArg valid subTask name for task) {
+      // load subtask
+      // run({task: subtask, args: remainingArgs, options})
+    } else {
+      //error - not sub task 'name', did you mean instead?
+    }
+
+  } else {
+    if (args and opts match task) {
+      // run the task with args
+    } else {
+      // error - args didn't match expectation
+    }
+
+  }
+
+
+}
+```
+
 ### Next steps ideas
 
 - [ ] beef up the help text code
