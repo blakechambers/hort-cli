@@ -2,6 +2,20 @@ import type { CB } from "./shared/types.ts";
 import { Argument } from "./argument.ts";
 import { Option } from "./option.ts";
 
+type BaseFunc = (...args: any) => void;
+type FuncParams<TFunc extends BaseFunc> = Parameters<TFunc>[0];
+
+interface Func<TFunc extends BaseFunc> {
+  (task: Task<Parameters<TFunc>[0]>): ReturnType<TFunc>;
+}
+
+function buildTask<TFunc extends BaseFunc>(
+  func: TFunc,
+  cb: Func<TFunc>,
+): Task<Parameters<TFunc>[0]> {
+  return new Task<FuncParams<typeof func>>(func.name, cb);
+}
+
 class Task<TParams> {
   name: string;
   desc?: string;
@@ -35,4 +49,4 @@ class Task<TParams> {
   }
 }
 
-export { Task };
+export { buildTask, Task };
