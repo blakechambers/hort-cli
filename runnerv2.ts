@@ -1,11 +1,10 @@
-import { parse } from "./deps.ts";
 import { materializeByArgType } from "./shared/util.ts";
 import { formatBlockList } from "./deps.ts";
 import type { Task } from "./taskv2.ts";
 import type { Option } from "./option.ts";
 
-interface RunOpts {
-  task: Task<unknown>;
+interface RunOpts<TTask> {
+  task: TTask;
   args: (string | number)[];
   options: Record<string, string | number>;
 }
@@ -43,38 +42,38 @@ const commands = {
   "list": "list things",
 };
 
-// async function run({ task, config, args, options }: RunOpts) {
-//   // prints command help message
-//   if (options.h || options.help) {
-//     const task: Task<Parameters<typeof config>[0]> = config;
+async function run<TTask>({ task, args, options }: RunOpts<TTask>) {
+  //   // prints command help message
+  //   if (options.h || options.help) {
+  //     const task: Task<Parameters<typeof config>[0]> = config;
 
-//     console.log(buildHelpMessage({
-//       title: task.name,
-//       description: task.desc,
-//       optionsList: [...task.options].reduce(
-//         (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-//         {},
-//       ),
-//     }));
-//     Deno.exit(0);
-//     return;
-//   }
+  //     console.log(buildHelpMessage({
+  //       title: task.name,
+  //       description: task.desc,
+  //       optionsList: [...task.options].reduce(
+  //         (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
+  //         {},
+  //       ),
+  //     }));
+  //     Deno.exit(0);
+  //     return;
+  //   }
 
-//   const namedThings: Record<string, unknown> = {};
+  //   const namedThings: Record<string, unknown> = {};
 
-//   for (const [index, argument] of config.arguments.entries()) {
-//     namedThings[argument.name] = materializeByArgType(
-//       argument.type,
-//       args[index],
-//     );
-//   }
+  //   for (const [index, argument] of config.arguments.entries()) {
+  //     namedThings[argument.name] = materializeByArgType(
+  //       argument.type,
+  //       args[index],
+  //     );
+  //   }
 
-//   for (const [name, option] of config.options.entries()) {
-//     namedThings[name] = materializeByArgType(option.type, options[name]);
-//   }
+  //   for (const [name, option] of config.options.entries()) {
+  //     namedThings[name] = materializeByArgType(option.type, options[name]);
+  //   }
 
-//   task(namedThings as unknown as Parameters<typeof task>[0]);
-// }
+  //   task(namedThings as unknown as Parameters<typeof task>[0]);
+}
 
 type CLIInput = number | string;
 
@@ -106,12 +105,4 @@ interface MountOpts {
 //   );
 // }
 
-async function main() {
-  // const { _: args, ...options } = parse(Deno.args);
-
-  // const task = new Task("name", () => {});
-
-  // await run({ task, args, options });
-}
-
-export { main };
+export { run };

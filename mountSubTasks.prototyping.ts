@@ -1,5 +1,5 @@
 import { expandGlob, resolve } from "./deps.ts";
-import { Task } from "./task.ts";
+import { buildTask, Task } from "./taskv2.ts";
 
 async function subTasksFromDir(
   pathDir: string,
@@ -10,7 +10,7 @@ async function subTasksFromDir(
     const { default: taskFunc, task: config } = await import(path);
 
     if (config) {
-      const task: Task<Parameters<typeof config>[0]> = config;
+      const task = buildTask(taskFunc, config);
 
       taskMap.set(taskFunc.name, task);
     }
