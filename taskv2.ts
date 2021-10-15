@@ -21,11 +21,13 @@ class Task<TParams> {
   desc?: string;
   arguments: Array<Argument<TParams>>;
   options: Map<keyof TParams, Option<TParams>>;
+  subTasks: Map<string, Task<any>>;
 
   constructor(name: string, proc: CB<Task<TParams>>) {
     this.name = name;
     this.arguments = [];
     this.options = new Map<keyof TParams, Option<TParams>>();
+    this.subTasks = new Map<string, Task<any>>();
 
     proc(this);
   }
@@ -38,6 +40,10 @@ class Task<TParams> {
 
   addOption(name: keyof TParams, proc: CB<Option<TParams>>) {
     this.options.set(name, new Option<TParams>(name, proc));
+  }
+
+  addSubTask(task: Task<any>) {
+    this.subTasks.set(task.name, task);
   }
 
   private ensurePriorArgumentsAreRequired() {
