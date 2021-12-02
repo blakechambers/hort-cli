@@ -7,16 +7,9 @@ import { buildTask, Task } from "./taskv2.ts";
 async function main() {
   const { _: args, ...options } = parse(Deno.args);
 
-  interface TopLevelOpts {
-  }
+  // const task = buildTask(topLevel, () => {});
 
-  function topLevel({}: TopLevelOpts): void {
-    console.log("basically saying this is the command.  Out!");
-  }
-
-  const task = buildTask(topLevel, () => {});
-
-  await run<typeof task>({ task, args, options });
+  // await run({ task, args, options });
 }
 
 export { buildTask, main, Task };

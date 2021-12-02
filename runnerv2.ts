@@ -3,8 +3,8 @@ import { formatBlockList } from "./deps.ts";
 import type { Task } from "./taskv2.ts";
 import type { Option } from "./option.ts";
 
-interface RunOpts<TTask> {
-  task: TTask;
+interface RunOpts {
+  task: Task<any>;
   args: (string | number)[];
   options: Record<string, string | number>;
 }
@@ -42,7 +42,9 @@ const commands = {
   "list": "list things",
 };
 
-async function run<TTask>({ task, args, options }: RunOpts<TTask>) {
+async function run(
+  { task, args, options }: RunOpts,
+): Promise<void> {
   //   // prints command help message
   //   if (options.h || options.help) {
   //     const task: Task<Parameters<typeof config>[0]> = config;
@@ -59,20 +61,47 @@ async function run<TTask>({ task, args, options }: RunOpts<TTask>) {
   //     return;
   //   }
 
-  //   const namedThings: Record<string, unknown> = {};
+  const namedThings: Record<string, unknown> = {};
 
-  //   for (const [index, argument] of config.arguments.entries()) {
-  //     namedThings[argument.name] = materializeByArgType(
-  //       argument.type,
-  //       args[index],
-  //     );
-  //   }
+  // await new Promise((resolve) => resolve(null));
 
-  //   for (const [name, option] of config.options.entries()) {
-  //     namedThings[name] = materializeByArgType(option.type, options[name]);
-  //   }
+  for (const [index, argument] of task.arguments.entries()) {
+    const nonSymbolName = withoutSymbol(argument.name);
 
-  //   task(namedThings as unknown as Parameters<typeof task>[0]);
+    if (args[index] || argument.required) {
+      namedThings[nonSymbolName] = materializeByArgType(
+        argument.type,
+        args[index],
+      );
+    } else {
+      namedThings[nonSymbolName] = undefined;
+    }
+  }
+
+  for (const [name, option] of task.options.entries()) {
+    const nonSymbolName = withoutSymbol(name);
+
+    if (options[nonSymbolName] || option.required) {
+      namedThings[nonSymbolName] = materializeByArgType(
+        option.type,
+        options[nonSymbolName],
+      );
+    } else {
+      namedThings[nonSymbolName] = undefined;
+    }
+  }
+
+  await task.call(namedThings);
+
+  return;
+}
+
+function withoutSymbol(item: string | number | symbol): string | number {
+  if (typeof (item) === "symbol") {
+    return String(item);
+  } else {
+    return item;
+  }
 }
 
 type CLIInput = number | string;

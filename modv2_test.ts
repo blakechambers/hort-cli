@@ -1,5 +1,5 @@
 import { assertEquals } from "./test_deps.ts";
-import { ArgTypes, buildTask, Task } from "./modv2.ts";
+import { ArgTypes, buildTask, main, Task } from "./modv2.ts";
 
 const { test } = Deno;
 

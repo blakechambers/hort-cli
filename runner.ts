@@ -46,7 +46,7 @@ async function run({ args, options }: RunOpts) {
   // prints help message when the command not found
   if (!(args.length > 0 && args[0] in { ...commands, help: "true" })) {
     console.log("[main help message]");
-    Deno.exit(0);
+    // Deno.exit(0);
   }
 
   const [commandArg, ...remainingOptions] = args;
