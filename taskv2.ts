@@ -22,7 +22,7 @@ class Task<TParams> {
   desc?: string;
   arguments: Array<Argument<TParams>>;
   options: Map<keyof TParams, Option<TParams>>;
-  // subTasks: Map<string, Task<any>>;
+  subTasks: Map<string, Task<any>>;
 
   constructor(
     name: string,
@@ -33,7 +33,7 @@ class Task<TParams> {
     this.func = func;
     this.arguments = [];
     this.options = new Map<keyof TParams, Option<TParams>>();
-    // this.subTasks = new Map<string, Task<any>>();
+    this.subTasks = new Map<string, Task<any>>();
 
     proc(this);
   }
@@ -55,9 +55,9 @@ class Task<TParams> {
     this.options.set(name, new Option<TParams>(name, proc));
   }
 
-  // addSubTask(task: Task<any>) {
-  //   this.subTasks.set(task.name, task);
-  // }
+  addSubTask<TSubTaskParams>(task: Task<TSubTaskParams>) {
+    this.subTasks.set(task.name, task);
+  }
 
   private ensurePriorArgumentsAreRequired() {
     const allPriorArgsAreRequired = this.arguments.every((a) => a.required);
