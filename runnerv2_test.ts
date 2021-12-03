@@ -1,7 +1,7 @@
 import { assertEquals, assertThrowsAsync } from "./test_deps.ts";
 import { ArgTypes, buildTask, Task } from "./modv2.ts";
 import { run } from "./runnerv2.ts";
-import { buildSpy } from "./test_spy.ts";
+import { buildSpy, mockConsoleLog, resetConsoleLogMock } from "./test_spy.ts";
 
 const { test } = Deno;
 
@@ -133,5 +133,88 @@ test({
     await run({ task, args, options });
 
     assertEquals(callArgs, [{ foo: undefined, bar: undefined }]);
+  },
+});
+
+test({
+  name: "[V2] runner - traversing subtasks",
+  fn: async () => {
+    interface ListOpts {
+      quiet: boolean;
+    }
+
+    function child({ quiet }: ListOpts): void {
+    }
+
+    const [childSpy, childCallArgs] = buildSpy(child);
+
+    const childTask = buildTask(
+      childSpy,
+      (t) => {
+        t.addOption("quiet", (o) => {
+          o.desc = "A required option";
+
+          o.type = ArgTypes.Boolean;
+          o.required = true;
+        });
+      },
+    );
+
+    const task = new Task<Record<string, unknown>>("parent", undefined, (t) => {
+      t.addSubTask(childTask);
+    });
+
+    assertEquals(task.name, "parent");
+
+    const subTasks = task.subTasks;
+    assertEquals([...subTasks.keys()], ["child"]);
+
+    const args: string[] = ["child"];
+    const options = { quiet: "true" };
+
+    await run({ task, args, options });
+
+    assertEquals(childCallArgs, [{ quiet: true }]);
+  },
+});
+
+test({
+  name: "[V2] runner - traversing subtasks when args do not match",
+  fn: async () => {
+    interface ListOpts {
+    }
+
+    function child({}: ListOpts): void {
+    }
+
+    const [childSpy, childCallArgs] = buildSpy(child);
+    const [_, consoleLogArgs] = mockConsoleLog();
+
+    const childTask = buildTask(
+      childSpy,
+      () => {
+      },
+    );
+
+    const task = new Task<Record<string, unknown>>("parent", undefined, (t) => {
+      t.addSubTask(childTask);
+    });
+
+    assertEquals(task.name, "parent");
+
+    const subTasks = task.subTasks;
+    assertEquals([...subTasks.keys()], ["child"]);
+
+    const args: string[] = ["wrong_name"];
+    const options = { quiet: "true" };
+
+    await run({ task, args, options });
+
+    // was not called
+    assertEquals(childCallArgs, []);
+
+    assertEquals(consoleLogArgs, ["the help message"]);
+
+    resetConsoleLogMock();
   },
 });

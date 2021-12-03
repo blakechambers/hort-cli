@@ -61,6 +61,28 @@ async function run(
   //     return;
   //   }
 
+  if (task.subTasks.size > 0 && args.length > 0) {
+    const [firstArg, ...remainingArgs] = args;
+
+    if (typeof (firstArg) === "string") {
+      const matchingSubtask = task.subTasks.get(firstArg);
+
+      if (matchingSubtask) {
+        return run({
+          task: matchingSubtask,
+          args: remainingArgs,
+          options,
+        });
+      } else {
+        console.log("the help message");
+        // Deno.exit(0);
+        return;
+      }
+    } else {
+      throw new Error("panic");
+    }
+  }
+
   const namedThings: Record<string, unknown> = {};
 
   // await new Promise((resolve) => resolve(null));
