@@ -57,3 +57,4 @@ function run({task, args, options}) {
 - [ ] tasks can either ensure all args are accounted for (leaf level tasks) or
       not (grouping of tasks)
 - [ ] support a top level stdin full and stdin piped arg type
+- [ ] support both async and non async functions
