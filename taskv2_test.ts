@@ -1,4 +1,4 @@
-import { assertEquals } from "./test_deps.ts";
+import { assertEquals, assertThrows } from "./test_deps.ts";
 import { buildTask, Task } from "./taskv2.ts";
 import { ArgTypes } from "./modv2.ts";
 
@@ -155,5 +155,42 @@ test({
     if (quietOpt === undefined) throw new Error("panic");
 
     assertEquals(quietOpt.name, "quiet");
+  },
+});
+
+test({
+  name: "[V2] Task() – arguments required: false must come at the end",
+  fn: () => {
+    interface ListOpts {
+      foo: string;
+      bar: string;
+    }
+
+    function list({ foo, bar }: ListOpts): void {
+    }
+
+    buildTask(list, (t) => {
+      assertThrows(
+        () => {
+          t.desc = "This is just a simple task to list things";
+
+          t.addArgument("foo", (a) => {
+            a.desc = "A required argument";
+            a.required = false;
+
+            a.type = ArgTypes.String;
+          });
+
+          t.addArgument("foo", (a) => {
+            a.desc = "A required argument";
+            a.required = true;
+
+            a.type = ArgTypes.String;
+          });
+        },
+        Error,
+        "all prior args must be required",
+      );
+    });
   },
 });
