@@ -1,7 +1,7 @@
 import { assertEquals, assertThrowsAsync } from "./test_deps.ts";
 import { ArgTypes, buildTask, Task } from "./modv2.ts";
 import { run } from "./runnerv2.ts";
-import { buildSpy, mockConsoleLog, resetConsoleLogMock } from "./test_spy.ts";
+import { buildSpy, mockPropOnGlobal } from "./test_spy.ts";
 
 const { test } = Deno;
 
@@ -83,6 +83,12 @@ test({
     }
 
     const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
       t.addOption("foo", (o) => {
@@ -99,6 +105,7 @@ test({
       Error,
       "Type error – requires a boolean.",
     );
+    resetConsoleSpy();
   },
 });
 
@@ -114,6 +121,12 @@ test({
     }
 
     const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
       t.addArgument("foo", (a) => {
@@ -133,6 +146,7 @@ test({
     await run({ task, args, options });
 
     assertEquals(callArgs, [{ foo: undefined, bar: undefined }]);
+    resetConsoleSpy();
   },
 });
 
@@ -147,6 +161,12 @@ test({
     }
 
     const [childSpy, childCallArgs] = buildSpy(child);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
 
     const childTask = buildTask(
       childSpy,
@@ -175,6 +195,7 @@ test({
     await run({ task, args, options });
 
     assertEquals(childCallArgs, [{ quiet: true }]);
+    resetConsoleSpy();
   },
 });
 
@@ -188,7 +209,12 @@ test({
     }
 
     const [childSpy, childCallArgs] = buildSpy(child);
-    const [_, consoleLogArgs] = mockConsoleLog();
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
 
     const childTask = buildTask(
       childSpy,
@@ -212,9 +238,68 @@ test({
 
     // was not called
     assertEquals(childCallArgs, []);
+    assertEquals(consoleSpy.callArgs, ["the help message"]);
 
-    assertEquals(consoleLogArgs, ["the help message"]);
+    resetConsoleSpy();
+  },
+});
 
-    resetConsoleLogMock();
+test({
+  name: "[V2] runner – help text formatting",
+  fn: async () => {
+    interface ListOpts {
+      foo: boolean;
+      bar: string;
+      baz: string;
+    }
+
+    function list({ foo, bar, baz }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", (o) => {
+        o.desc = "foo description";
+        o.type = ArgTypes.Boolean;
+        o.required = true;
+      });
+
+      t.addOption("bar", (o) => {
+        o.desc = "foo description";
+        o.type = ArgTypes.String;
+        o.required = true;
+      });
+
+      t.addArgument("baz", (a) => {
+        a.desc = "A required argument";
+        a.required = true;
+
+        a.type = ArgTypes.String;
+      });
+    });
+
+    const args: string[] = [];
+    const options = { help: true };
+
+    await run({ task, args, options });
+
+    assertEquals(consoleSpy.callArgs, [`list
+
+a test function named list
+
+Options:
+    foo    foo description
+    bar    foo description
+`]);
+
+    resetConsoleSpy();
   },
 });
