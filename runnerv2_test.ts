@@ -30,6 +30,81 @@ test({
 });
 
 test({
+  name: "[V2] runner – errors with unused args",
+  fn: () => {
+    [
+      {
+        args: ["foo"],
+        _opts: {},
+        expectedErrorMsg:
+          "Argument error – unexpected argument(s) 'foo' provided",
+      },
+      {
+        args: ["foo", "bar"],
+        _opts: {},
+        expectedErrorMsg:
+          "Argument error – unexpected argument(s) 'foo' and 'bar' provided",
+      },
+      {
+        args: ["foo", "bar", "baz"],
+        _opts: {},
+        expectedErrorMsg:
+          "Argument error – unexpected argument(s) 'foo', 'bar' and 'baz' provided",
+      },
+      {
+        args: [],
+        _opts: { foo: "foo" },
+        expectedErrorMsg:
+          "Argument error – unexpected options(s) 'foo' provided",
+      },
+      {
+        args: [],
+        _opts: { foo: "foo", bar: "bar" },
+        expectedErrorMsg:
+          "Argument error – unexpected options(s) 'foo' and 'bar' provided",
+      },
+      {
+        args: [],
+        _opts: { foo: "foo", bar: "bar", baz: "baz" },
+        expectedErrorMsg:
+          "Argument error – unexpected options(s) 'foo', 'bar' and 'baz' provided",
+      },
+    ].forEach(
+      (
+        { args, _opts, expectedErrorMsg },
+      ) => {
+        // hack the value for the table test
+        let options: Record<string, string | boolean | number> =
+          _opts as Record<
+            string,
+            string | boolean | number
+          >;
+
+        interface ListOpts {
+        }
+
+        function list({}: ListOpts): void {
+        }
+
+        const [listSpy, callArgs] = buildSpy(list);
+
+        const task = buildTask(listSpy, (t) => {
+          t.desc = "This is just a simple task to list things";
+        });
+
+        assertThrowsAsync(
+          async () => await run({ task, args, options }),
+          Error,
+          expectedErrorMsg,
+        );
+
+        assertEquals(callArgs, []);
+      },
+    );
+  },
+});
+
+test({
   name: "[V2] runner – casts CLI options and arguments to keyword args",
   fn: async () => {
     interface ListOpts {

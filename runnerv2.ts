@@ -1,5 +1,5 @@
 import { materializeByArgType } from "./shared/util.ts";
-import { formatBlockList } from "./deps.ts";
+import { ensureString, formatBlockList } from "./deps.ts";
 import type { Task } from "./taskv2.ts";
 import type { Option } from "./option.ts";
 
@@ -41,6 +41,27 @@ function buildHelpMessage(
 const commands = {
   "list": "list things",
 };
+
+function withQuotes<TValue = string>(
+  str: TValue,
+  index: number,
+  arr: Array<TValue>,
+): string {
+  return `'${str}'`;
+}
+
+function commaDelimitedList(arr: Array<string>): string {
+  if (arr.length === 0) {
+    return "";
+  } else if (arr.length === 1) {
+    return arr[0];
+  } else if (arr.length === 2) {
+    return arr.join(" and ");
+  } else {
+    const leadingValues = arr.slice(0, -1);
+    return `${leadingValues.join(", ")} and ${arr.slice(-1)[0]}`;
+  }
+}
 
 async function run(
   { task, args, options }: RunOpts,
@@ -96,6 +117,36 @@ async function run(
     } else {
       namedThings[nonSymbolName] = undefined;
     }
+  }
+
+  if (args.length > task.arguments.length) {
+    const remainingArgs = args.slice(task.arguments.length);
+    const formattedList = commaDelimitedList(
+      remainingArgs.map(withQuotes),
+    );
+
+    throw new Error(
+      `Argument error – unexpected argument(s) ${formattedList} provided`,
+    );
+  }
+
+  const allExpectedKeys = [...task.options.keys()].map(withoutSymbol).map(
+    ensureString,
+  );
+  const allProvidedKeys = Object.keys(options);
+
+  const unexpectedKeys = allProvidedKeys.filter((value) =>
+    !allExpectedKeys.includes(value)
+  );
+
+  if (unexpectedKeys.length > 0) {
+    const formattedList = commaDelimitedList(
+      unexpectedKeys.map(withQuotes),
+    );
+
+    throw new Error(
+      `Argument error – unexpected options(s) ${formattedList} provided`,
+    );
   }
 
   for (const [name, option] of task.options.entries()) {

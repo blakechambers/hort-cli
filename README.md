@@ -45,7 +45,8 @@ function run({task, args, options}) {
 ### Next steps ideas
 
 - [x] refactor spy to not return console out
-- [ ] passing extra arguments or options raises an error
+- [x] passing extra arguments raises an error
+- [x] passing extra options raises an error
 - [ ] add enum type
 - [ ] add file path argument type
 - [ ] add tests for help text formatting rules
