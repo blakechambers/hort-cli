@@ -1,8 +1,10 @@
 import { ensureString } from "../deps.ts";
 import { ArgTypes } from "./types.ts";
 
-function ensureBoolean(arg: string | number): boolean {
-  if (typeof arg === "string") {
+function ensureBoolean(arg: string | number | boolean): boolean {
+  if (typeof arg === "boolean") {
+    return arg;
+  } else if (typeof arg === "string") {
     switch (arg.toLowerCase()) {
       case "true": {
         return true;
@@ -41,7 +43,7 @@ function ensureBoolean(arg: string | number): boolean {
 
 function materializeByArgType(
   argType: ArgTypes,
-  cliInput: number | string,
+  cliInput: number | string | boolean,
 ): string | boolean {
   switch (argType) {
     case ArgTypes.String:

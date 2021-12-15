@@ -6,7 +6,7 @@ import type { Option } from "./option.ts";
 interface RunOpts {
   task: Task<any>;
   args: (string | number)[];
-  options: Record<string, string | number>;
+  options: Record<string, string | number | boolean>;
 }
 
 interface HelpMessageOpts {
@@ -35,7 +35,7 @@ function buildHelpMessage(
     // usageDescription,
     // subCommandsList && formatBlockList("Commands", subCommandsList),
     optionsList && formatBlockList("Options", optionsList),
-  ].filter((x) => x).map((y) => y && y.trim()).join("\n\n");
+  ].filter((x) => x).map((y) => y && y.trim()).join("\n\n") + "\n";
 }
 
 const commands = {
@@ -46,20 +46,18 @@ async function run(
   { task, args, options }: RunOpts,
 ): Promise<void> {
   //   // prints command help message
-  //   if (options.h || options.help) {
-  //     const task: Task<Parameters<typeof config>[0]> = config;
+  if (options.h || options.help || args[0] === "help") {
+    console.log(buildHelpMessage({
+      title: task.name,
+      description: task.desc,
+      optionsList: [...task.options].reduce(
+        (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
+        {},
+      ),
+    }));
 
-  //     console.log(buildHelpMessage({
-  //       title: task.name,
-  //       description: task.desc,
-  //       optionsList: [...task.options].reduce(
-  //         (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-  //         {},
-  //       ),
-  //     }));
-  //     Deno.exit(0);
-  //     return;
-  //   }
+    return;
+  }
 
   if (task.subTasks.size > 0 && args.length > 0) {
     const [firstArg, ...remainingArgs] = args;
@@ -75,7 +73,7 @@ async function run(
         });
       } else {
         console.log("the help message");
-        // Deno.exit(0);
+        // Deno.exit(1);
         return;
       }
     } else {
