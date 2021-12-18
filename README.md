@@ -47,8 +47,11 @@ function run({task, args, options}) {
 - [x] refactor spy to not return console out
 - [x] passing extra arguments raises an error
 - [x] passing extra options raises an error
+- [x] working example
+- [ ] formalize error classes
+- [ ] better wording on too many / too few args error message
 - [ ] add enum type
-- [ ] add file path argument type
+- [ ] add file path argument type, source dir
 - [ ] add tests for help text formatting rules
   - prints help text any time -h or --help is received
 - [ ] beef up the help text code
