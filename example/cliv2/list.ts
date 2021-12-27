@@ -22,7 +22,7 @@ const task = buildTask(list, (t) => {
   });
 
   t.addOption("quiet", (o) => {
-    o.desc = "A required option";
+    o.desc = "decrease the output text";
 
     o.type = ArgTypes.Boolean;
     o.required = false;

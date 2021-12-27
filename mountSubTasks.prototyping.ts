@@ -1,5 +1,5 @@
 import { expandGlob, resolve } from "./deps.ts";
-import { buildTask, Task } from "./taskv2.ts";
+import { Task } from "./taskv2.ts";
 
 const TASK_EXPORT_NAME = "task";
 
@@ -14,19 +14,11 @@ async function subTasksFromDir(
     );
 
     if (config) {
-      const task = buildTask(taskFunc, config);
-
-      taskMap.set(taskFunc.name, task);
+      taskMap.set(taskFunc.name, config);
     }
   }
 
   return taskMap;
 }
-
-// if (import.meta.main) {
-//   console.log(await subTasksFromDir("./example/cli"));
-// }
-
-// async function mount(dirPath) :
 
 export { subTasksFromDir };

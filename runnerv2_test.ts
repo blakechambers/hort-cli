@@ -313,7 +313,11 @@ test({
 
     // was not called
     assertEquals(childCallArgs, []);
-    assertEquals(consoleSpy.callArgs, ["the help message"]);
+    assertEquals(consoleSpy.callArgs, [`parent
+
+Sub commands:
+    child    undefined
+`]);
 
     resetConsoleSpy();
   },

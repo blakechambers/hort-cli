@@ -23,8 +23,8 @@ function buildHelpMessage(
     title,
     description,
     // usageExamplesList,
-    // usageDescription,
-    // subCommandsList,
+    usageDescription,
+    subCommandsList,
     optionsList,
   }: HelpMessageOpts,
 ): string {
@@ -32,9 +32,11 @@ function buildHelpMessage(
     title,
     description,
     // usageExamplesList && formatBlockList("Usage", usageExamplesList),
-    // usageDescription,
-    // subCommandsList && formatBlockList("Commands", subCommandsList),
-    optionsList && formatBlockList("Options", optionsList),
+    usageDescription,
+    subCommandsList && Object.values(subCommandsList).length > 0 &&
+    formatBlockList("Sub commands", subCommandsList),
+    optionsList && Object.values(optionsList).length > 0 &&
+    formatBlockList("Options", optionsList),
   ].filter((x) => x).map((y) => y && y.trim()).join("\n\n") + "\n";
 }
 
@@ -63,25 +65,39 @@ function commaDelimitedList(arr: Array<string>): string {
   }
 }
 
+function displayHelpForTask(task: Task<unknown>): void {
+  console.log(buildHelpMessage({
+    title: task.name,
+    description: task.desc,
+    optionsList: [...task.options].reduce(
+      (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
+      {},
+    ),
+    subCommandsList: [...task.subTasks].reduce(
+      (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
+      {},
+    ),
+  }));
+}
+
 async function run(
   { task, args, options }: RunOpts,
 ): Promise<void> {
-  //   // prints command help message
-  if (options.h || options.help || args[0] === "help") {
-    console.log(buildHelpMessage({
-      title: task.name,
-      description: task.desc,
-      optionsList: [...task.options].reduce(
-        (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-        {},
-      ),
-    }));
-
-    return;
-  }
-
   if (task.subTasks.size > 0 && args.length > 0) {
     const [firstArg, ...remainingArgs] = args;
+
+    if (args[0] === "help") {
+      const [firstArg, ...remainingArgs] = args;
+
+      return run({
+        task,
+        args: remainingArgs,
+        options: {
+          ...options,
+          "h": true,
+        },
+      });
+    }
 
     if (typeof (firstArg) === "string") {
       const matchingSubtask = task.subTasks.get(firstArg);
@@ -93,13 +109,21 @@ async function run(
           options,
         });
       } else {
-        console.log("the help message");
+        // console.log("the help message");
+        displayHelpForTask(task);
         // Deno.exit(1);
         return;
       }
     } else {
       throw new Error("panic");
     }
+  }
+
+  //   // prints command help message
+  if (options.h || options.help) {
+    displayHelpForTask(task);
+
+    return;
   }
 
   const namedThings: Record<string, unknown> = {};
