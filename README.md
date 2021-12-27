@@ -48,7 +48,7 @@ function run({task, args, options}) {
 - [x] passing extra arguments raises an error
 - [x] passing extra options raises an error
 - [x] working example
-- [ ] refactor the help message formatting to be a separate repo
+- [ ] test `help list` subtask like param managment changes added in `e0866c`
 - [ ] formalize error classes
 - [ ] better wording on too many / too few args error message
 - [ ] add enum type
@@ -66,3 +66,4 @@ function run({task, args, options}) {
 - [ ] support a top level stdin full and stdin piped arg type
 - [ ] support both async and non async functions
 - [ ] support adding aliases for option params
+- [ ] refactor the help message formatting to be a separate repo
