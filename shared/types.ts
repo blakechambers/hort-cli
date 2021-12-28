@@ -1,6 +1,7 @@
 enum ArgTypes {
   String = "String",
   Boolean = "Boolean",
+  Number = "Number",
 }
 
 type InterfaceKeys<T> = keyof T;

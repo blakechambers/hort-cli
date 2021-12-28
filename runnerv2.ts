@@ -176,7 +176,10 @@ async function run(
   for (const [name, option] of task.options.entries()) {
     const nonSymbolName = withoutSymbol(name);
 
-    if (options[nonSymbolName] || option.required) {
+    if (
+      Object.prototype.hasOwnProperty.call(options, nonSymbolName) ||
+      option.required
+    ) {
       namedThings[nonSymbolName] = materializeByArgType(
         option.type,
         options[nonSymbolName],

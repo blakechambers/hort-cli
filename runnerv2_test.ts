@@ -32,54 +32,53 @@ test({
 test({
   name: "[V2] runner – errors with unused args",
   fn: () => {
-    [
+    const cases: Array<{
+      args: Array<string>;
+      options: Record<string, string | boolean | number>;
+      expectedErrorMsg: string;
+    }> = [
       {
         args: ["foo"],
-        _opts: {},
+        options: {},
         expectedErrorMsg:
           "Argument error – unexpected argument(s) 'foo' provided",
       },
       {
         args: ["foo", "bar"],
-        _opts: {},
+        options: {},
         expectedErrorMsg:
           "Argument error – unexpected argument(s) 'foo' and 'bar' provided",
       },
       {
         args: ["foo", "bar", "baz"],
-        _opts: {},
+        options: {},
         expectedErrorMsg:
           "Argument error – unexpected argument(s) 'foo', 'bar' and 'baz' provided",
       },
       {
         args: [],
-        _opts: { foo: "foo" },
+        options: { foo: "foo" },
         expectedErrorMsg:
           "Argument error – unexpected options(s) 'foo' provided",
       },
       {
         args: [],
-        _opts: { foo: "foo", bar: "bar" },
+        options: { foo: "foo", bar: "bar" },
         expectedErrorMsg:
           "Argument error – unexpected options(s) 'foo' and 'bar' provided",
       },
       {
         args: [],
-        _opts: { foo: "foo", bar: "bar", baz: "baz" },
+        options: { foo: "foo", bar: "bar", baz: "baz" },
         expectedErrorMsg:
           "Argument error – unexpected options(s) 'foo', 'bar' and 'baz' provided",
       },
-    ].forEach(
-      (
-        { args, _opts, expectedErrorMsg },
-      ) => {
-        // hack the value for the table test
-        let options: Record<string, string | boolean | number> =
-          _opts as Record<
-            string,
-            string | boolean | number
-          >;
+    ];
 
+    cases.forEach(
+      (
+        { args, options, expectedErrorMsg },
+      ) => {
         interface ListOpts {
         }
 
@@ -143,6 +142,133 @@ test({
     await run({ task, args, options });
 
     assertEquals(callArgs, [{ foo: true, bar: "hello", baz: "bazzz" }]);
+  },
+});
+
+test({
+  name: "[V2] runner – casts CLI boolean options based on specified arg types",
+  fn: async () => {
+    interface Case {
+      cliInput: any;
+      runOutput?: any;
+      errorMsg?: string;
+      fieldRequired: boolean;
+    }
+    const cases: Array<Case> = [
+      {
+        cliInput: { aBool: "true" },
+        runOutput: { aBool: true },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "1" },
+        runOutput: { aBool: true },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: 1 },
+        runOutput: { aBool: true },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "TRUE" },
+        runOutput: { aBool: true },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "True" },
+        runOutput: { aBool: true },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "false" },
+        runOutput: { aBool: false },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "False" },
+        runOutput: { aBool: false },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "FALSE" },
+        runOutput: { aBool: false },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "0" },
+        runOutput: { aBool: false },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: "0" },
+        runOutput: { aBool: false },
+        fieldRequired: false,
+      },
+      {
+        cliInput: { aBool: 0 },
+        runOutput: { aBool: false },
+        fieldRequired: true,
+      },
+      {
+        cliInput: { aBool: 0 },
+        runOutput: { aBool: false },
+        fieldRequired: false,
+      },
+      {
+        cliInput: { aBool: "A STRING" },
+        fieldRequired: true,
+        errorMsg:
+          "Type error – requires a boolean. Only accepts values 'true', 'false', 1, or 0.",
+      },
+      {
+        cliInput: { aBool: 123456 },
+        fieldRequired: true,
+        errorMsg:
+          "Type error – requires a boolean. Only accepts values 'true', 'false', 1, or 0.",
+      },
+    ];
+
+    interface ListOpts {
+      aStr: string;
+      aBool: boolean;
+      aNumber: number;
+    }
+
+    function list({ aStr, aBool, aNumber }: ListOpts): void {
+    }
+
+    for (let i = 0; i < cases.length; i++) {
+      const { cliInput, runOutput, fieldRequired, errorMsg } = cases[i];
+      const [listSpy, callArgs] = buildSpy(list);
+
+      const task = buildTask(listSpy, (t) => {
+        t.addOption("aBool", (o) => {
+          o.type = ArgTypes.Boolean;
+          o.required = fieldRequired;
+        });
+
+        // t.addOption("aStr", (o) => {
+        //   o.type = ArgTypes.String;
+        //   o.required = false;
+        // });
+      });
+
+      const args: string[] = [];
+      const options = cliInput;
+
+      if (errorMsg) {
+        assertThrowsAsync(
+          async () => await run({ task, args, options }),
+          Error,
+          errorMsg,
+        );
+      } else {
+        await run({ task, args, options });
+
+        assertEquals(callArgs, [runOutput]);
+      }
+    }
   },
 });
 
