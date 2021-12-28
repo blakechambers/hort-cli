@@ -1,6 +1,15 @@
+### Usage
+
 ```
 cd ~/projects/deno/hort-cli/example
-deno run --allow-read=. --unstable cli.ts help
+deno run --allow-read=. cli.ts help
+```
+
+### Testing
+
+```
+cd ~/projects/deno/hort-cli
+deno test
 ```
 
 ### Next steps ideas
