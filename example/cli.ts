@@ -6,7 +6,7 @@ if (import.meta.main) {
   const t = new Task("Pom", undefined, (t) => {
     t.desc = "A simple time tracker / logger";
 
-    [...subtasks.values()].forEach((subtask) => {
+    Array.from(subtasks.values()).forEach((subtask) => {
       t.addSubTask(subtask);
     });
   });

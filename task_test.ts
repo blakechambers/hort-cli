@@ -48,7 +48,7 @@ test({
 
     const taskOptions = task.options;
     // returns an iterator instead
-    assertEquals([...taskOptions.keys()], ["quiet"]);
+    assertEquals(Array.from(taskOptions.keys()), ["quiet"]);
 
     const quietOpt = taskOptions.get("quiet");
     if (quietOpt === undefined) throw new Error("panic");
@@ -101,7 +101,7 @@ test({
 
     const taskOptions = task.options;
     // returns an iterator instead
-    assertEquals([...taskOptions.keys()], ["quiet"]);
+    assertEquals(Array.from(taskOptions.keys()), ["quiet"]);
 
     const quietOpt = taskOptions.get("quiet");
     if (quietOpt === undefined) throw new Error("panic");
@@ -149,7 +149,7 @@ test({
 
     const childOptions = childSubTask.options;
     // returns an iterator instead
-    assertEquals([...childOptions.keys()], ["quiet"]);
+    assertEquals(Array.from(childOptions.keys()), ["quiet"]);
 
     const quietOpt = childOptions.get("quiet");
     if (quietOpt === undefined) throw new Error("panic");
