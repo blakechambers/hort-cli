@@ -6,7 +6,7 @@ type BaseFunc = (...args: any) => void;
 type FuncParams<TFunc extends BaseFunc> = Parameters<TFunc>[0];
 
 interface Func<TFunc extends BaseFunc> {
-  (task: Task<Parameters<TFunc>[0]>): ReturnType<TFunc>;
+  (task: Task<Parameters<TFunc>[0]>): Awaited<ReturnType<TFunc>>;
 }
 
 function buildTask<TFunc extends BaseFunc>(
