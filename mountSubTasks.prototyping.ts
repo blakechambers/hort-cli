@@ -1,5 +1,5 @@
 import { expandGlob, resolve } from "./deps.ts";
-import { Task } from "./taskv2.ts";
+import { Task } from "./task.ts";
 
 const TASK_EXPORT_NAME = "task";
 

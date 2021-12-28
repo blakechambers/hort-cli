@@ -1,8 +1,8 @@
-import { run } from "./runnerv2.ts";
+import { run } from "./runner.ts";
 import { parse } from "./deps.ts";
 
 export { ArgTypes } from "./shared/types.ts";
-import { buildTask, Task } from "./taskv2.ts";
+import { buildTask, Task } from "./task.ts";
 
 async function main(task: Task<any>) {
   const { _: args, ...options } = parse(Deno.args);

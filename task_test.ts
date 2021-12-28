@@ -1,11 +1,11 @@
 import { assertEquals, assertThrows } from "./test_deps.ts";
-import { buildTask, Task } from "./taskv2.ts";
-import { ArgTypes } from "./modv2.ts";
+import { buildTask, Task } from "./task.ts";
+import { ArgTypes } from "./mod.ts";
 
 const { test } = Deno;
 
 test({
-  name: "[V2] buildTask() – valid arguments",
+  name: "buildTask() – valid arguments",
   fn: () => {
     interface ListOpts {
       foo: string;
@@ -58,7 +58,7 @@ test({
 });
 
 test({
-  name: "[V2] new Task() – valid arguments",
+  name: "new Task() – valid arguments",
   fn: () => {
     interface ListOpts {
       foo: string;
@@ -111,7 +111,7 @@ test({
 });
 
 test({
-  name: "[V2] new Task() – subTasks",
+  name: "new Task() – subTasks",
   fn: () => {
     interface ListOpts {
       quiet: boolean;
@@ -159,7 +159,7 @@ test({
 });
 
 test({
-  name: "[V2] Task() – arguments required: false must come at the end",
+  name: "Task() – arguments required: false must come at the end",
   fn: () => {
     interface ListOpts {
       foo: string;

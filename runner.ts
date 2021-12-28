@@ -1,6 +1,6 @@
 import { materializeByArgType } from "./shared/util.ts";
 import { ensureString, formatBlockList } from "./deps.ts";
-import type { Task } from "./taskv2.ts";
+import type { Task } from "./task.ts";
 import type { Option } from "./option.ts";
 
 interface RunOpts {

@@ -3,51 +3,13 @@ cd ~/projects/deno/hort-cli/example
 deno run --allow-read=..,../../process-cli --allow-net cli.ts test --quiet true
 ```
 
-possible path for mounting folders of tasks
-
-```ts
-import { mountTasksDir } from "...";
-
-export const task = mountTasksDir("./cli");
-```
-
-### runner v2 psuedo code
-
-```ts
-function run({task, args, options}) {
-  if (task.hasSubTasks) {
-    const firstArg, ...remainingArgs == args;
-
-    if firstArg == "help" {
-      // rerun with help flag added
-    }
-
-    if(firstArg valid subTask name for task) {
-      // load subtask
-      // run({task: subtask, args: remainingArgs, options})
-    } else {
-      //error - not sub task 'name', did you mean instead?
-    }
-
-  } else {
-    if (args and opts match task) {
-      // run the task with args
-    } else {
-      // error - args didn't match expectation
-    }
-
-  }
-
-
-}
-```
-
 ### Next steps ideas
 
 - [x] refactor spy to not return console out
 - [x] passing extra arguments raises an error
 - [x] passing extra options raises an error
 - [x] working example
+- [x] remove all the v1 stuff
 - [ ] test `help list` subtask like param managment changes added in `e0866c`
 - [ ] formalize error classes
 - [ ] better wording on too many / too few args error message
@@ -67,3 +29,4 @@ function run({task, args, options}) {
 - [ ] support both async and non async functions
 - [ ] support adding aliases for option params
 - [ ] refactor the help message formatting to be a separate repo
+      API

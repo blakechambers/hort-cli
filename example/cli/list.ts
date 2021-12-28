@@ -1,4 +1,4 @@
-import { ArgTypes, buildTask } from "../../modv2.ts";
+import { ArgTypes, buildTask } from "../../mod.ts";
 
 interface ListOpts {
   foo: string;

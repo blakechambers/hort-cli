@@ -1,12 +1,12 @@
 import { assertEquals, assertThrowsAsync } from "./test_deps.ts";
-import { ArgTypes, buildTask, Task } from "./modv2.ts";
-import { run } from "./runnerv2.ts";
+import { ArgTypes, buildTask, Task } from "./mod.ts";
+import { run } from "./runner.ts";
 import { buildSpy, mockPropOnGlobal } from "./test_spy.ts";
 
 const { test } = Deno;
 
 test({
-  name: "[V2] runner – happy path with no args",
+  name: "runner – happy path with no args",
   fn: async () => {
     interface ListOpts {
     }
@@ -30,7 +30,7 @@ test({
 });
 
 test({
-  name: "[V2] runner – errors with unused args",
+  name: "runner – errors with unused args",
   fn: () => {
     const cases: Array<{
       args: Array<string>;
@@ -104,7 +104,7 @@ test({
 });
 
 test({
-  name: "[V2] runner – casts CLI options and arguments to keyword args",
+  name: "runner – casts CLI options and arguments to keyword args",
   fn: async () => {
     interface ListOpts {
       foo: boolean;
@@ -146,7 +146,7 @@ test({
 });
 
 test({
-  name: "[V2] runner – casts CLI boolean options based on specified arg types",
+  name: "runner – casts CLI boolean options based on specified arg types",
   fn: async () => {
     interface ListOpts {
       aStr: string;
@@ -340,7 +340,7 @@ test({
 });
 
 test({
-  name: "[V2] runner – throws exceptions when non required options are omitted",
+  name: "runner – throws exceptions when non required options are omitted",
   fn: () => {
     interface ListOpts {
       foo: boolean;
@@ -378,7 +378,7 @@ test({
 });
 
 test({
-  name: "[V2] runner – non-required args and options receive 'undefined'",
+  name: "runner – non-required args and options receive 'undefined'",
   fn: async () => {
     interface ListOpts {
       foo: boolean;
@@ -419,7 +419,7 @@ test({
 });
 
 test({
-  name: "[V2] runner - traversing subtasks",
+  name: "runner - traversing subtasks",
   fn: async () => {
     interface ListOpts {
       quiet: boolean;
@@ -468,7 +468,7 @@ test({
 });
 
 test({
-  name: "[V2] runner - traversing subtasks when args do not match",
+  name: "runner - traversing subtasks when args do not match",
   fn: async () => {
     interface ListOpts {
     }
@@ -517,7 +517,7 @@ Sub commands:
 });
 
 test({
-  name: "[V2] runner – help text formatting",
+  name: "runner – help text formatting",
   fn: async () => {
     interface ListOpts {
       foo: boolean;
