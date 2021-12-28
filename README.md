@@ -1,6 +1,6 @@
 ```
 cd ~/projects/deno/hort-cli/example
-deno run --allow-read=..,../../process-cli --allow-net cli.ts test --quiet true
+deno run --allow-read=. --unstable cli.ts help
 ```
 
 ### Next steps ideas

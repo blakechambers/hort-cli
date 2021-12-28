@@ -3,6 +3,7 @@ import { parse } from "./deps.ts";
 
 export { ArgTypes } from "./shared/types.ts";
 import { buildTask, Task } from "./task.ts";
+import { subTasksFromDir } from "./mountSubTasks.ts";
 
 async function main(task: Task<any>) {
   const { _: args, ...options } = parse(Deno.args);
@@ -10,4 +11,4 @@ async function main(task: Task<any>) {
   await run({ task, args, options });
 }
 
-export { buildTask, main, run, Task };
+export { buildTask, main, run, subTasksFromDir, Task };
