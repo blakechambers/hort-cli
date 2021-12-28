@@ -148,87 +148,6 @@ test({
 test({
   name: "[V2] runner – casts CLI boolean options based on specified arg types",
   fn: async () => {
-    interface Case {
-      cliInput: any;
-      runOutput?: any;
-      errorMsg?: string;
-      fieldRequired: boolean;
-    }
-    const cases: Array<Case> = [
-      {
-        cliInput: { aBool: "true" },
-        runOutput: { aBool: true },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "1" },
-        runOutput: { aBool: true },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: 1 },
-        runOutput: { aBool: true },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "TRUE" },
-        runOutput: { aBool: true },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "True" },
-        runOutput: { aBool: true },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "false" },
-        runOutput: { aBool: false },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "False" },
-        runOutput: { aBool: false },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "FALSE" },
-        runOutput: { aBool: false },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "0" },
-        runOutput: { aBool: false },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: "0" },
-        runOutput: { aBool: false },
-        fieldRequired: false,
-      },
-      {
-        cliInput: { aBool: 0 },
-        runOutput: { aBool: false },
-        fieldRequired: true,
-      },
-      {
-        cliInput: { aBool: 0 },
-        runOutput: { aBool: false },
-        fieldRequired: false,
-      },
-      {
-        cliInput: { aBool: "A STRING" },
-        fieldRequired: true,
-        errorMsg:
-          "Type error – requires a boolean. Only accepts values 'true', 'false', 1, or 0.",
-      },
-      {
-        cliInput: { aBool: 123456 },
-        fieldRequired: true,
-        errorMsg:
-          "Type error – requires a boolean. Only accepts values 'true', 'false', 1, or 0.",
-      },
-    ];
-
     interface ListOpts {
       aStr: string;
       aBool: boolean;
@@ -237,25 +156,173 @@ test({
 
     function list({ aStr, aBool, aNumber }: ListOpts): void {
     }
+    interface Case {
+      cliInput: any;
+      runOutput?: any;
+      errorMsg?: string;
+      fieldRequired: boolean;
+      fieldType: ArgTypes;
+    }
+    const cases: Array<Case> = [
+      {
+        cliInput: "true",
+        runOutput: true,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "1",
+        runOutput: true,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: 1,
+        runOutput: true,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "TRUE",
+        runOutput: true,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "True",
+        runOutput: true,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "false",
+        runOutput: false,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "False",
+        runOutput: false,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "FALSE",
+        runOutput: false,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "0",
+        runOutput: false,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "0",
+        runOutput: false,
+        fieldRequired: false,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: 0,
+        runOutput: false,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: 0,
+        runOutput: false,
+        fieldRequired: false,
+        fieldType: ArgTypes.Boolean,
+      },
+      {
+        cliInput: "A STRING",
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+        errorMsg:
+          "Type error – requires a boolean. Only accepts values 'true', 'false', 1, or 0.",
+      },
+      {
+        cliInput: 123456,
+        fieldRequired: true,
+        fieldType: ArgTypes.Boolean,
+        errorMsg:
+          "Type error – requires a boolean. Only accepts values 'true', 'false', 1, or 0.",
+      },
+      {
+        cliInput: "blah",
+        runOutput: "blah",
+        fieldRequired: true,
+        fieldType: ArgTypes.String,
+      },
+      {
+        cliInput: 1234,
+        fieldRequired: true,
+        fieldType: ArgTypes.String,
+        errorMsg: "Type error – requires a string",
+      },
+      {
+        cliInput: "blah",
+        runOutput: "blah",
+        fieldRequired: false,
+        fieldType: ArgTypes.String,
+      },
+      {
+        cliInput: "123",
+        runOutput: 123,
+        fieldRequired: true,
+        fieldType: ArgTypes.Number,
+      },
+      {
+        cliInput: "123.45",
+        runOutput: 123.45,
+        fieldRequired: true,
+        fieldType: ArgTypes.Number,
+      },
+      {
+        cliInput: "NaN",
+        fieldRequired: true,
+        fieldType: ArgTypes.Number,
+        errorMsg: "Type error – requires a number",
+      },
+      {
+        cliInput: "not a number",
+        fieldRequired: true,
+        fieldType: ArgTypes.Number,
+        errorMsg: "Type error – requires a number",
+      },
+    ];
 
     for (let i = 0; i < cases.length; i++) {
-      const { cliInput, runOutput, fieldRequired, errorMsg } = cases[i];
+      const { cliInput, runOutput, fieldType, fieldRequired, errorMsg } =
+        cases[i];
       const [listSpy, callArgs] = buildSpy(list);
+      let optionName: keyof ListOpts;
+
+      switch (fieldType) {
+        case ArgTypes.Boolean:
+          optionName = "aBool";
+          break;
+        case ArgTypes.String:
+          optionName = "aStr";
+          break;
+        case ArgTypes.Number:
+          optionName = "aNumber";
+          break;
+        default:
+          throw new Error("panic – unhandled ArgType");
+      }
 
       const task = buildTask(listSpy, (t) => {
-        t.addOption("aBool", (o) => {
-          o.type = ArgTypes.Boolean;
+        t.addOption(optionName, (o) => {
+          o.type = fieldType;
           o.required = fieldRequired;
         });
-
-        // t.addOption("aStr", (o) => {
-        //   o.type = ArgTypes.String;
-        //   o.required = false;
-        // });
       });
 
       const args: string[] = [];
-      const options = cliInput;
+      const options = { [optionName]: cliInput };
 
       if (errorMsg) {
         assertThrowsAsync(
@@ -266,7 +333,7 @@ test({
       } else {
         await run({ task, args, options });
 
-        assertEquals(callArgs, [runOutput]);
+        assertEquals(callArgs, [{ [optionName]: runOutput }]);
       }
     }
   },

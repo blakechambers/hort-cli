@@ -7,10 +7,7 @@ function ensureNumber(arg: string | number | boolean): number {
       "Type error – requires a number.",
     );
   } else if (typeof arg === "string") {
-    const parsed = parseInt(arg, 10);
-
-    console.log("parsed", { parsed, arg });
-
+    const parsed = parseFloat(arg);
     if (isNaN(parsed)) {
       throw new Error(
         "Type error – requires a number.",
