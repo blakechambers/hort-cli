@@ -1,5 +1,12 @@
-import { ensureString } from "../deps.ts";
 import { ArgTypes } from "./types.ts";
+
+function ensureString(arg: string | number | boolean): string {
+  if (typeof arg !== "string") {
+    throw new Error("Type error – requires a string");
+  }
+
+  return arg;
+}
 
 function ensureNumber(arg: string | number | boolean): number {
   if (typeof arg === "boolean") {
@@ -80,4 +87,4 @@ function materializeByArgType(
   }
 }
 
-export { ensureBoolean, ensureNumber, materializeByArgType };
+export { ensureBoolean, ensureNumber, ensureString, materializeByArgType };

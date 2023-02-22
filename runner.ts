@@ -1,5 +1,4 @@
-import { materializeByArgType } from "./shared/util.ts";
-import { ensureString, formatBlockList } from "./deps.ts";
+import { ensureString, materializeByArgType } from "./shared/util.ts";
 import type { Task } from "./task.ts";
 import type { Option } from "./option.ts";
 
@@ -16,6 +15,30 @@ interface HelpMessageOpts {
   usageDescription?: string;
   subCommandsList?: Record<string, string>;
   optionsList?: Record<string, string>;
+}
+
+function displayTwoColumnList(
+  list: Record<string, string>,
+  spacing = "    ",
+): string {
+  const longestKey = Object.keys(list).reduce(
+    (acc, current) => acc >= current.length ? acc : current.length,
+    0,
+  );
+
+  return Object.entries(list).map(([name, desc]) => {
+    return `${spacing}${name.padEnd(longestKey)}${spacing}${desc}`;
+  })
+    .join("\n");
+}
+
+function formatBlockList(
+  title: string,
+  list: Record<string, string>,
+): string {
+  return `${title}:
+${displayTwoColumnList(list)}
+`;
 }
 
 function buildHelpMessage(
