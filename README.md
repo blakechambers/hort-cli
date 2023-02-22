@@ -63,9 +63,11 @@ if (import.meta.main) {
 }
 ```
 
+Assuming this is stored in `simple.ts`, from cli you can run:
+
 ```
 % deno run simple.ts Person
-Hello, Blake!!!
+Hello, Person!!!
 % deno run simple.ts Person --quiet
 Hello, Person.
 % deno run simple.ts
@@ -74,7 +76,7 @@ error: Uncaught (in promise) Error: Type error – requires a string
           ^ [...]
 ```
 
-Additionally, this supports help text output:
+Additionally, hort supports help text output:
 
 ```
 % deno run simple.ts --help
@@ -87,15 +89,15 @@ Options:
 ```
 
 Beyond what's shown in this example, hort supports nesting tasks and building
-those from a directory (see [examples](./examples)).
+tasks from a directory (see [examples](./examples)).
 
 ### Why
 
-I made this tool to help similify my local tooling as I was exploring deno. It's
+I made hort tool to help similify my local tooling as I was exploring deno. It's
 likely not what you're looking for (maybe [cliffy](https://cliffy.io) would be
 better and more stable for now).
 
-As mentioned above, thors ability to build and support more complext CLI use
+As mentioned above, thors ability to build and support more complex CLI use
 cases is something that I've enjoyed. This tool hopefully helps to support that.
 
 ### Local testing
