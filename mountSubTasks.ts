@@ -8,7 +8,7 @@ async function subTasksFromDir(
 ): Promise<Map<string, Task<unknown>>> {
   const taskMap = new Map<string, Task<unknown>>();
 
-  for await (const { path } of expandGlob(resolve(pathDir, "*.ts"))) {
+  for await (const { path } of expandGlob("*.ts", { root: resolve(pathDir) })) {
     const { default: taskFunc, [TASK_EXPORT_NAME]: config } = await import(
       path
     );
