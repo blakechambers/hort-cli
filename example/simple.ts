@@ -1,3 +1,8 @@
+/*
+  To run this example, run the following command:
+
+      deno run example/simple.ts help
+*/
 import { ArgTypes, buildTask, main } from "../mod.ts";
 
 interface HelloOpts {

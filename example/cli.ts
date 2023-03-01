@@ -1,16 +1,22 @@
-import { main, subTasksFromDir, Task } from "../mod.ts";
+/*
+  This is an example of how to create sub tasks to a main task. You
+  can use addSubTask tasks loaded from other files.
+
+  Additionally, if the parent task doesn't offer any functionality,
+  you can just pass undefined in place of the function. By default this will just print usage instructions.
+
+  To run this example, run the following command:
+
+      deno run example/cli.ts help
+*/
+import { main, Task } from "../mod.ts";
+import { task as listTask } from "./cli/list.ts";
 
 if (import.meta.main) {
-  // loads all subtasks from the ./cli directory.  the assumption is that
-  // each file in the directory also exports a `task`.
-  const subtasks = await subTasksFromDir("./cli");
-
   const t = new Task("Pom", undefined, (t) => {
     t.desc = "A simple time tracker / logger";
 
-    Array.from(subtasks.values()).forEach((subtask) => {
-      t.addSubTask(subtask);
-    });
+    t.addSubTask(listTask);
   });
 
   main(t);

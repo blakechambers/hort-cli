@@ -225,34 +225,4 @@ function withoutSymbol(item: string | number | symbol): string | number {
   }
 }
 
-type CLIInput = number | string;
-
-interface MountOpts {
-  args: [CLIInput, ...Array<CLIInput>];
-  options: Record<string, CLIInput>;
-}
-
-// async function mount({ args, options }: MountOpts) {
-//   // prints help message when the command not found
-//   if (!(args.length > 0 && args[0] in { ...commands, help: "true" })) {
-//     console.log("[main help message]");
-//     Deno.exit(0);
-//   }
-
-//   const [commandArg, ...remainingArgs] = args;
-
-//   if (commandArg === "help") {
-//     await run({
-//       task:
-//       args: remainingOptions,
-//       options: { ...options, help: "true" },
-//     });
-//     return;
-//   }
-
-//   const { default: task, task: config } = await import(
-//     `./example/cli/${commandArg}.ts`
-//   );
-// }
-
 export { run };
