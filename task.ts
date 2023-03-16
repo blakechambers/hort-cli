@@ -38,11 +38,19 @@ class Task<TParams> {
     proc(this);
   }
 
-  call(args: TParams) {
-    if (!this.func) {
-      throw new Error("cannot call func when undefined");
-    }
-    this.func(args);
+  call(args: TParams): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!this.func) {
+          throw new Error("cannot call func when undefined");
+        }
+
+        this.func(args);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 
   addArgument(name: keyof TParams, proc: CB<Argument<TParams>>) {
