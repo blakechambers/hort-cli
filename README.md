@@ -107,15 +107,20 @@ deno test
 
 ### Ideas for the future
 
-- In addition to `ArgTypes.String` and `ArgTypes.Boolean`, add:
+- In addition to `ArgTypes.String`, `ArgTypes.Boolean`, number, and enum, add:
   - a file based path. This would be similar to string, but would validate the
-    files presence.
+    files presence. based on args could ensure exists, new, etc
+  - a folder path. based on args, can ensure new, validate presence, etc
 - better formatting for arguments. Currently, the output doesn't display them.
-- aliasing of options.
+- refactoring split an input types class away from option and argument (instead
+  of mirroring types between them)
+- support adding aliases for option params.
 - testing around help text output scenarios.
-- support a top level stdin full and stdin piped arg type
+- support better formatted output utils (both for docs and colorized formatted
+  output). This could/would be a separate utility.
+  - components: table formatting, padding, justification, iterating line writer
+- formalize error classes
+- support a top level stdin full and stdin piped input type
 - support both async and non async functions
-- support adding aliases for option params
 - refactor the help message formatting to be a separate repo
 - create an alternate DSL that uses typescript decorators and a class based API
-- formalize error classes
