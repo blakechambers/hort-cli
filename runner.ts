@@ -132,9 +132,7 @@ async function run(
           options,
         });
       } else {
-        // console.log("the help message");
         displayHelpForTask(task);
-        // Deno.exit(1);
         return;
       }
     } else {
@@ -150,8 +148,6 @@ async function run(
   }
 
   const namedThings: Record<string, unknown> = {};
-
-  // await new Promise((resolve) => resolve(null));
 
   for (const [index, argument] of task.arguments.entries()) {
     const nonSymbolName = withoutSymbol(argument.name);
@@ -196,6 +192,7 @@ async function run(
     );
   }
 
+  // load options into namedThings based on the task's options list and requirement.
   for (const [name, option] of task.options.entries()) {
     const nonSymbolName = withoutSymbol(name);
 
@@ -203,8 +200,7 @@ async function run(
       Object.prototype.hasOwnProperty.call(options, nonSymbolName) ||
       option.required
     ) {
-      namedThings[nonSymbolName] = materializeByArgType(
-        option.type,
+      namedThings[nonSymbolName] = option.materializeAndEnsureValid(
         options[nonSymbolName],
       );
     } else {

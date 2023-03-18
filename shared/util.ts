@@ -71,6 +71,10 @@ function ensureBoolean(arg: string | number | boolean): boolean {
   );
 }
 
+function exhaustiveEnumCheck(input: never): never {
+  throw new Error(`Exhaustive check failed.`);
+}
+
 function materializeByArgType(
   argType: ArgTypes,
   cliInput: number | string | boolean,
@@ -82,8 +86,10 @@ function materializeByArgType(
       return ensureBoolean(cliInput);
     case ArgTypes.Number:
       return ensureNumber(cliInput);
+    case ArgTypes.Enum:
+      return ensureString(cliInput);
     default:
-      throw new Error(`unexpected ArgType=${argType}`);
+      exhaustiveEnumCheck(argType);
   }
 }
 

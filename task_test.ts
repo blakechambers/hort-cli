@@ -28,10 +28,8 @@ test({
         a.type = ArgTypes.String;
       });
 
-      t.addOption("quiet", (o) => {
+      t.addOption("quiet", ArgTypes.Boolean, (o) => {
         o.desc = "A required option";
-
-        o.type = ArgTypes.Boolean;
         o.required = true;
       });
     });
@@ -81,10 +79,9 @@ test({
         a.type = ArgTypes.String;
       });
 
-      t.addOption("quiet", (o) => {
+      t.addOption("quiet", ArgTypes.Boolean, (o) => {
         o.desc = "A required option";
 
-        o.type = ArgTypes.Boolean;
         o.required = true;
       });
     });
@@ -124,10 +121,8 @@ test({
       child.name,
       child,
       (t) => {
-        t.addOption("quiet", (o) => {
+        t.addOption("quiet", ArgTypes.Boolean, (o) => {
           o.desc = "A required option";
-
-          o.type = ArgTypes.Boolean;
           o.required = true;
         });
       },
@@ -194,3 +189,31 @@ test({
     });
   },
 });
+
+// test for adding an option with a set of specific values
+test(
+  {
+    name: "Task() – addOption() with enum",
+    fn: () => {
+      // enum
+      enum Foo {
+        Bar = "bar",
+        Baz = "baz",
+      }
+
+      interface ListOpts {
+        foo: Foo;
+      }
+
+      function list({ foo }: ListOpts): void {
+      }
+
+      buildTask(list, (t) => {
+        t.addOption("foo", ArgTypes.Enum, (o) => {
+          o.desc = "an enum";
+          o.values = ["bar", "baz"];
+        });
+      });
+    },
+  },
+);

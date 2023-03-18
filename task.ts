@@ -1,6 +1,13 @@
 import type { CB } from "./shared/types.ts";
+import { ArgTypes } from "./shared/types.ts";
 import { Argument } from "./argument.ts";
-import { Option } from "./option.ts";
+import {
+  BooleanOption,
+  EnumOption,
+  NumberOption,
+  Option,
+  StringOption,
+} from "./option.ts";
 
 type BaseFunc = (...args: any) => void;
 type FuncParams<TFunc extends BaseFunc> = Parameters<TFunc>[0];
@@ -59,8 +66,59 @@ class Task<TParams> {
     this.arguments.push(new Argument<TParams>(name, proc));
   }
 
-  addOption(name: keyof TParams, proc: CB<Option<TParams>>) {
-    this.options.set(name, new Option<TParams>(name, proc));
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes.String,
+    proc: CB<StringOption<TParams>>,
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes.Boolean,
+    proc: CB<BooleanOption<TParams>>,
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes.Number,
+    proc: CB<NumberOption<TParams>>,
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes.Enum,
+    proc: CB<EnumOption<TParams>>,
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes,
+    proc: unknown,
+  ): void {
+    switch (type) {
+      case ArgTypes.String:
+        this.options.set(
+          name,
+          new StringOption<TParams>(name, proc as CB<StringOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Boolean:
+        this.options.set(
+          name,
+          new BooleanOption<TParams>(name, proc as CB<BooleanOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Number:
+        this.options.set(
+          name,
+          new NumberOption<TParams>(name, proc as CB<NumberOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Enum:
+        this.options.set(
+          name,
+          new EnumOption<TParams>(name, [], proc as CB<EnumOption<TParams>>),
+        );
+        break;
+      default:
+        throw new Error("invalid type");
+    }
   }
 
   addSubTask<TSubTaskParams>(task: Task<TSubTaskParams>) {

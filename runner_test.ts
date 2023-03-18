@@ -118,13 +118,11 @@ test({
     const [listSpy, callArgs] = buildSpy(list);
 
     const task = buildTask(listSpy, (t) => {
-      t.addOption("foo", (o) => {
-        o.type = ArgTypes.Boolean;
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.required = true;
       });
 
-      t.addOption("bar", (o) => {
-        o.type = ArgTypes.String;
+      t.addOption("bar", ArgTypes.String, (o) => {
         o.required = true;
       });
 
@@ -152,6 +150,7 @@ test({
       aStr: string;
       aBool: boolean;
       aNumber: number;
+      aEnum: string;
     }
 
     function list({ aStr, aBool, aNumber }: ListOpts): void {
@@ -310,15 +309,39 @@ test({
         case ArgTypes.Number:
           optionName = "aNumber";
           break;
+        case ArgTypes.Enum:
+          optionName = "aEnum";
+          break;
         default:
           throw new Error("panic – unhandled ArgType");
       }
 
       const task = buildTask(listSpy, (t) => {
-        t.addOption(optionName, (o) => {
-          o.type = fieldType;
-          o.required = fieldRequired;
-        });
+        switch (fieldType) {
+          case ArgTypes.Boolean:
+            t.addOption(optionName, ArgTypes.Boolean, (o) => {
+              o.required = fieldRequired;
+            });
+            break;
+          case ArgTypes.String:
+            t.addOption(optionName, ArgTypes.String, (o) => {
+              o.required = fieldRequired;
+            });
+            break;
+          case ArgTypes.Number:
+            t.addOption(optionName, ArgTypes.Number, (o) => {
+              o.required = fieldRequired;
+            });
+            break;
+          case ArgTypes.Enum:
+            t.addOption(optionName, ArgTypes.Enum, (o) => {
+              o.required = fieldRequired;
+              o.values = ["foo", "bar"];
+            });
+            break;
+          default:
+            throw new Error("panic – unhandled ArgType");
+        }
       });
 
       const args: string[] = [];
@@ -359,8 +382,7 @@ test({
     consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
-      t.addOption("foo", (o) => {
-        o.type = ArgTypes.Boolean;
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.required = true;
       });
     });
@@ -402,8 +424,7 @@ test({
         a.required = false;
       });
 
-      t.addOption("bar", (o) => {
-        o.type = ArgTypes.Boolean;
+      t.addOption("bar", ArgTypes.Boolean, (o) => {
         o.required = false;
       });
     });
@@ -439,10 +460,8 @@ test({
     const childTask = buildTask(
       childSpy,
       (t) => {
-        t.addOption("quiet", (o) => {
+        t.addOption("quiet", ArgTypes.Boolean, (o) => {
           o.desc = "A required option";
-
-          o.type = ArgTypes.Boolean;
           o.required = true;
         });
       },
@@ -538,15 +557,13 @@ test({
 
     const task = buildTask(listSpy, (t) => {
       t.desc = "a test function named list";
-      t.addOption("foo", (o) => {
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.desc = "foo description";
-        o.type = ArgTypes.Boolean;
         o.required = true;
       });
 
-      t.addOption("bar", (o) => {
+      t.addOption("bar", ArgTypes.String, (o) => {
         o.desc = "foo description";
-        o.type = ArgTypes.String;
         o.required = true;
       });
 
@@ -572,6 +589,49 @@ Options:
     bar    foo description
 `]);
 
+    resetConsoleSpy();
+  },
+});
+
+// enum option
+test({
+  name: "runner – enum option",
+  fn: async () => {
+    enum Foo {
+      Bar = "bar",
+      Baz = "baz",
+    }
+
+    interface ListOpts {
+      foo: Foo;
+    }
+
+    function list({ foo }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", ArgTypes.Enum, (o) => {
+        o.desc = "foo description";
+        o.required = true;
+        o.values = ["bar", "baz"];
+      });
+    });
+
+    const args: string[] = [];
+    const options = { foo: "bar" };
+
+    await run({ task, args, options });
+
+    assertEquals(callArgs, [{ foo: "bar" }]);
     resetConsoleSpy();
   },
 });

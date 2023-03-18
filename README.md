@@ -42,10 +42,9 @@ const task = buildTask(helloWorld, (t) => {
   // adds an option.  this value would be specificed as --quiet, --quiet=true,
   // --quiet=1, etc. Since this is `required=false`, it is optional. If you
   // wanted to make it required, you could set `required=true`.
-  t.addOption("quiet", (o) => {
+  t.addOption("quiet", ArgTypes.Boolean, (o) => {
     o.desc = "Calms the greeting.  No need for all the spice!";
     o.required = false;
-    o.type = ArgTypes.Boolean;
   });
 });
 
@@ -108,17 +107,20 @@ deno test
 
 ### Ideas for the future
 
-- In addition to `ArgTypes.String` and `ArgTypes.Boolean`, add:
-  - an enum based path. With this, the formatted help text could use those
-    values to build automated help text.
+- In addition to `ArgTypes.String`, `ArgTypes.Boolean`, number, and enum, add:
   - a file based path. This would be similar to string, but would validate the
-    files presence.
+    files presence. based on args could ensure exists, new, etc
+  - a folder path. based on args, can ensure new, validate presence, etc
 - better formatting for arguments. Currently, the output doesn't display them.
-- aliasing of options.
+- refactoring split an input types class away from option and argument (instead
+  of mirroring types between them)
+- support adding aliases for option params.
 - testing around help text output scenarios.
-- support a top level stdin full and stdin piped arg type
+- support better formatted output utils (both for docs and colorized formatted
+  output). This could/would be a separate utility.
+  - components: table formatting, padding, justification, iterating line writer
+- formalize error classes
+- support a top level stdin full and stdin piped input type
 - support both async and non async functions
-- support adding aliases for option params
 - refactor the help message formatting to be a separate repo
 - create an alternate DSL that uses typescript decorators and a class based API
-- formalize error classes
