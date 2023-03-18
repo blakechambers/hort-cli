@@ -1,6 +1,11 @@
 import type { CB } from "./shared/types.ts";
 import { ArgTypes } from "./shared/types.ts";
-import { Argument } from "./argument.ts";
+import {
+  BooleanArgument,
+  EnumArgument,
+  NumberArgument,
+  StringArgument,
+} from "./argument.ts";
 import {
   BooleanOption,
   EnumOption,
@@ -60,10 +65,76 @@ class Task<TParams> {
     });
   }
 
-  addArgument(name: keyof TParams, proc: CB<Argument<TParams>>) {
+  // addArgument(name: keyof TParams, proc: CB<Argument<TParams>>) {
+  //   this.ensurePriorArgumentsAreRequired();
+
+  //   this.arguments.push(new Argument<TParams>(name, proc));
+  // }
+
+  // addArgument similar to above, but using a type flow similar to addOption
+  addArgument(
+    name: keyof TParams,
+    type: ArgTypes.String,
+    proc: CB<StringArgument<TParams>>,
+  ): void;
+  addArgument(
+    name: keyof TParams,
+    type: ArgTypes.Boolean,
+    proc: CB<BooleanArgument<TParams>>,
+  ): void;
+  addArgument(
+    name: keyof TParams,
+    type: ArgTypes.Number,
+    proc: CB<NumberArgument<TParams>>,
+  ): void;
+  addArgument(
+    name: keyof TParams,
+    type: ArgTypes.Enum,
+    proc: CB<EnumArgument<TParams>>,
+  ): void;
+  addArgument(
+    name: keyof TParams,
+    type: ArgTypes,
+    proc: unknown,
+  ): void {
     this.ensurePriorArgumentsAreRequired();
 
-    this.arguments.push(new Argument<TParams>(name, proc));
+    switch (type) {
+      case ArgTypes.String:
+        this.arguments.push(
+          new StringArgument<TParams>(
+            name,
+            proc as CB<StringArgument<TParams>>,
+          ),
+        );
+        break;
+      case ArgTypes.Boolean:
+        this.arguments.push(
+          new BooleanArgument<TParams>(
+            name,
+            proc as CB<BooleanArgument<TParams>>,
+          ),
+        );
+        break;
+      case ArgTypes.Number:
+        this.arguments.push(
+          new NumberArgument<TParams>(
+            name,
+            proc as CB<NumberArgument<TParams>>,
+          ),
+        );
+        break;
+      case ArgTypes.Enum:
+        this.arguments.push(
+          new EnumArgument<TParams>(
+            name,
+            proc as CB<EnumArgument<TParams>>,
+          ),
+        );
+        break;
+      default:
+        throw new Error("unknown argument type");
+    }
   }
 
   addOption(

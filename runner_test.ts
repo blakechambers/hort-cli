@@ -126,11 +126,9 @@ test({
         o.required = true;
       });
 
-      t.addArgument("baz", (a) => {
+      t.addArgument("baz", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
     });
 
@@ -419,8 +417,7 @@ test({
     consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
-      t.addArgument("foo", (a) => {
-        a.type = ArgTypes.Boolean;
+      t.addArgument("foo", ArgTypes.Boolean, (a) => {
         a.required = false;
       });
 
@@ -567,11 +564,9 @@ test({
         o.required = true;
       });
 
-      t.addArgument("baz", (a) => {
+      t.addArgument("baz", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
     });
 

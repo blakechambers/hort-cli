@@ -21,11 +21,9 @@ test({
     const task = buildTask(list, (t) => {
       t.desc = "This is just a simple task to list things";
 
-      t.addArgument("foo", (a) => {
+      t.addArgument("foo", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
 
       t.addOption("quiet", ArgTypes.Boolean, (o) => {
@@ -72,11 +70,9 @@ test({
     const task = new Task<Parameters<typeof list>[0]>(list.name, list, (t) => {
       t.desc = "This is just a simple task to list things";
 
-      t.addArgument("foo", (a) => {
+      t.addArgument("foo", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
 
       t.addOption("quiet", ArgTypes.Boolean, (o) => {
@@ -169,18 +165,14 @@ test({
         () => {
           t.desc = "This is just a simple task to list things";
 
-          t.addArgument("foo", (a) => {
+          t.addArgument("foo", ArgTypes.String, (a) => {
             a.desc = "A required argument";
             a.required = false;
-
-            a.type = ArgTypes.String;
           });
 
-          t.addArgument("foo", (a) => {
+          t.addArgument("foo", ArgTypes.String, (a) => {
             a.desc = "A required argument";
             a.required = true;
-
-            a.type = ArgTypes.String;
           });
         },
         Error,

@@ -1,6 +1,6 @@
 import { ArgTypes } from "./shared/types.ts";
 import type { CB, InterfaceKeys } from "./shared/types.ts";
-import { materializeByArgType } from "./shared/util.ts";
+import { ensureBoolean, ensureNumber, ensureString } from "./shared/util.ts";
 
 class Option<TParams> {
   name: InterfaceKeys<TParams>;
@@ -19,7 +19,7 @@ class Option<TParams> {
   materializeAndEnsureValid(
     arg: string | number | boolean,
   ): string | number | boolean {
-    return materializeByArgType(this.type, arg);
+    throw new Error("not implemented");
   }
 }
 
@@ -29,6 +29,12 @@ class StringOption<TParams> extends Option<TParams> {
 
     if (proc) proc(this);
   }
+
+  materializeAndEnsureValid(
+    arg: string | number | boolean,
+  ): string {
+    return ensureString(arg);
+  }
 }
 
 class BooleanOption<TParams> extends Option<TParams> {
@@ -37,6 +43,12 @@ class BooleanOption<TParams> extends Option<TParams> {
 
     if (proc) proc(this);
   }
+
+  materializeAndEnsureValid(
+    arg: string | number | boolean,
+  ): boolean {
+    return ensureBoolean(arg);
+  }
 }
 
 class NumberOption<TParams> extends Option<TParams> {
@@ -44,6 +56,12 @@ class NumberOption<TParams> extends Option<TParams> {
     super(ArgTypes.Number, name);
 
     if (proc) proc(this);
+  }
+
+  materializeAndEnsureValid(
+    arg: string | number | boolean,
+  ): number {
+    return ensureNumber(arg);
   }
 }
 
@@ -64,10 +82,10 @@ class EnumOption<TParams> extends Option<TParams> {
 
   materializeAndEnsureValid(
     arg: string | number | boolean,
-  ): string | number | boolean {
-    super.materializeAndEnsureValid(arg);
+  ): string {
+    const value = ensureString(arg);
 
-    if (!this.values.includes(arg as string)) {
+    if (!this.values.includes(value as string)) {
       throw new Error(
         `Invalid value for option ${String(this.name)}. Valid values are: ${
           this.values.join(", ")
@@ -75,7 +93,7 @@ class EnumOption<TParams> extends Option<TParams> {
       );
     }
 
-    return arg;
+    return value;
   }
 }
 
