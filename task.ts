@@ -66,44 +66,59 @@ class Task<TParams> {
     this.arguments.push(new Argument<TParams>(name, proc));
   }
 
-  addStringOption(
+  addOption(
     name: keyof TParams,
+    type: ArgTypes.String,
     proc: CB<StringOption<TParams>>,
-  ) {
-    this.options.set(
-      name,
-      new StringOption<TParams>(name, proc),
-    );
-  }
-
-  addBooleanOption(
+  ): void;
+  addOption(
     name: keyof TParams,
+    type: ArgTypes.Boolean,
     proc: CB<BooleanOption<TParams>>,
-  ) {
-    this.options.set(
-      name,
-      new BooleanOption<TParams>(name, proc),
-    );
-  }
-
-  addNumberOption(
+  ): void;
+  addOption(
     name: keyof TParams,
+    type: ArgTypes.Number,
     proc: CB<NumberOption<TParams>>,
-  ) {
-    this.options.set(
-      name,
-      new NumberOption<TParams>(name, proc),
-    );
-  }
-
-  addEnumOption(
+  ): void;
+  addOption(
     name: keyof TParams,
+    type: ArgTypes.Enum,
     proc: CB<EnumOption<TParams>>,
-  ) {
-    this.options.set(
-      name,
-      new EnumOption<TParams>(name, [], proc),
-    );
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes,
+    proc: unknown,
+  ): void {
+    switch (type) {
+      case ArgTypes.String:
+        this.options.set(
+          name,
+          new StringOption<TParams>(name, proc as CB<StringOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Boolean:
+        this.options.set(
+          name,
+          new BooleanOption<TParams>(name, proc as CB<BooleanOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Number:
+        this.options.set(
+          name,
+          new NumberOption<TParams>(name, proc as CB<NumberOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Enum:
+        this.options.set(
+          name,
+          new EnumOption<TParams>(name, [], proc as CB<EnumOption<TParams>>),
+        );
+        break;
+      default:
+        throw new Error("invalid type");
+    }
   }
 
   addSubTask<TSubTaskParams>(task: Task<TSubTaskParams>) {

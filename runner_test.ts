@@ -118,11 +118,11 @@ test({
     const [listSpy, callArgs] = buildSpy(list);
 
     const task = buildTask(listSpy, (t) => {
-      t.addBooleanOption("foo", (o) => {
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.required = true;
       });
 
-      t.addStringOption("bar", (o) => {
+      t.addOption("bar", ArgTypes.String, (o) => {
         o.required = true;
       });
 
@@ -319,22 +319,22 @@ test({
       const task = buildTask(listSpy, (t) => {
         switch (fieldType) {
           case ArgTypes.Boolean:
-            t.addBooleanOption(optionName, (o) => {
+            t.addOption(optionName, ArgTypes.Boolean, (o) => {
               o.required = fieldRequired;
             });
             break;
           case ArgTypes.String:
-            t.addStringOption(optionName, (o) => {
+            t.addOption(optionName, ArgTypes.String, (o) => {
               o.required = fieldRequired;
             });
             break;
           case ArgTypes.Number:
-            t.addNumberOption(optionName, (o) => {
+            t.addOption(optionName, ArgTypes.Number, (o) => {
               o.required = fieldRequired;
             });
             break;
           case ArgTypes.Enum:
-            t.addEnumOption(optionName, (o) => {
+            t.addOption(optionName, ArgTypes.Enum, (o) => {
               o.required = fieldRequired;
               o.values = ["foo", "bar"];
             });
@@ -382,7 +382,7 @@ test({
     consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
-      t.addBooleanOption("foo", (o) => {
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.required = true;
       });
     });
@@ -424,7 +424,7 @@ test({
         a.required = false;
       });
 
-      t.addStringOption("bar", (o) => {
+      t.addOption("bar", ArgTypes.Boolean, (o) => {
         o.required = false;
       });
     });
@@ -460,7 +460,7 @@ test({
     const childTask = buildTask(
       childSpy,
       (t) => {
-        t.addBooleanOption("quiet", (o) => {
+        t.addOption("quiet", ArgTypes.Boolean, (o) => {
           o.desc = "A required option";
           o.required = true;
         });
@@ -557,12 +557,12 @@ test({
 
     const task = buildTask(listSpy, (t) => {
       t.desc = "a test function named list";
-      t.addStringOption("foo", (o) => {
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.desc = "foo description";
         o.required = true;
       });
 
-      t.addStringOption("bar", (o) => {
+      t.addOption("bar", ArgTypes.String, (o) => {
         o.desc = "foo description";
         o.required = true;
       });
@@ -619,7 +619,7 @@ test({
 
     const task = buildTask(listSpy, (t) => {
       t.desc = "a test function named list";
-      t.addEnumOption("foo", (o) => {
+      t.addOption("foo", ArgTypes.Enum, (o) => {
         o.desc = "foo description";
         o.required = true;
         o.values = ["bar", "baz"];

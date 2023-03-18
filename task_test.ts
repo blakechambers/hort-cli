@@ -28,7 +28,7 @@ test({
         a.type = ArgTypes.String;
       });
 
-      t.addBooleanOption("quiet", (o) => {
+      t.addOption("quiet", ArgTypes.Boolean, (o) => {
         o.desc = "A required option";
         o.required = true;
       });
@@ -79,7 +79,7 @@ test({
         a.type = ArgTypes.String;
       });
 
-      t.addBooleanOption("quiet", (o) => {
+      t.addOption("quiet", ArgTypes.Boolean, (o) => {
         o.desc = "A required option";
 
         o.required = true;
@@ -121,7 +121,7 @@ test({
       child.name,
       child,
       (t) => {
-        t.addBooleanOption("quiet", (o) => {
+        t.addOption("quiet", ArgTypes.Boolean, (o) => {
           o.desc = "A required option";
           o.required = true;
         });
@@ -209,7 +209,7 @@ test(
       }
 
       buildTask(list, (t) => {
-        t.addEnumOption("foo", (o) => {
+        t.addOption("foo", ArgTypes.Enum, (o) => {
           o.desc = "an enum";
           o.values = ["bar", "baz"];
         });
