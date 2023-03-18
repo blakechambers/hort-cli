@@ -1,6 +1,13 @@
 import type { CB } from "./shared/types.ts";
+import { ArgTypes } from "./shared/types.ts";
 import { Argument } from "./argument.ts";
-import { Option } from "./option.ts";
+import {
+  BooleanOption,
+  EnumOption,
+  NumberOption,
+  Option,
+  StringOption,
+} from "./option.ts";
 
 type BaseFunc = (...args: any) => void;
 type FuncParams<TFunc extends BaseFunc> = Parameters<TFunc>[0];
@@ -59,8 +66,44 @@ class Task<TParams> {
     this.arguments.push(new Argument<TParams>(name, proc));
   }
 
-  addOption(name: keyof TParams, proc: CB<Option<TParams>>) {
-    this.options.set(name, new Option<TParams>(name, proc));
+  addStringOption(
+    name: keyof TParams,
+    proc: CB<StringOption<TParams>>,
+  ) {
+    this.options.set(
+      name,
+      new StringOption<TParams>(name, proc),
+    );
+  }
+
+  addBooleanOption(
+    name: keyof TParams,
+    proc: CB<BooleanOption<TParams>>,
+  ) {
+    this.options.set(
+      name,
+      new BooleanOption<TParams>(name, proc),
+    );
+  }
+
+  addNumberOption(
+    name: keyof TParams,
+    proc: CB<NumberOption<TParams>>,
+  ) {
+    this.options.set(
+      name,
+      new NumberOption<TParams>(name, proc),
+    );
+  }
+
+  addEnumOption(
+    name: keyof TParams,
+    proc: CB<EnumOption<TParams>>,
+  ) {
+    this.options.set(
+      name,
+      new EnumOption<TParams>(name, [], proc),
+    );
   }
 
   addSubTask<TSubTaskParams>(task: Task<TSubTaskParams>) {
