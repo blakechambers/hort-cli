@@ -18,7 +18,7 @@ class Option<TParams> {
 
   materializeAndEnsureValid(
     arg: string | number | boolean,
-  ): string | number | boolean {
+  ): string | number | boolean | Promise<Deno.FsFile> {
     throw new Error("not implemented");
   }
 }
@@ -85,7 +85,6 @@ class EnumOption<TParams> extends Option<TParams> {
   ): string {
     const value = ensureString(arg);
 
-    // `Invalid value for option "foo". Expected one of: bar, baz`
     if (!this.values.includes(value as string)) {
       throw new Error(
         `Invalid value for option "${String(this.name)}". Expected one of: ${
@@ -98,4 +97,49 @@ class EnumOption<TParams> extends Option<TParams> {
   }
 }
 
-export { BooleanOption, EnumOption, NumberOption, Option, StringOption };
+class FileOption<TParams> extends Option<TParams> {
+  allowNew: boolean;
+  allowExisting: boolean;
+
+  constructor(
+    name: InterfaceKeys<TParams>,
+    proc?: CB<FileOption<TParams>>,
+  ) {
+    super(ArgTypes.File, name);
+    this.allowNew = false;
+    this.allowExisting = true;
+
+    if (proc) proc(this);
+  }
+
+  async materializeAndEnsureValid(
+    arg: string | number | boolean,
+  ) {
+    const value = ensureString(arg);
+
+    if (!this.allowNew && !this.allowExisting) {
+      throw new Error(
+        `Invalid file configuration for option "${String(this.name)}".`,
+      );
+    } else if (!this.allowNew && !Deno.statSync(value).isFile) {
+      throw new Error(
+        `Invalid file for option "${String(this.name)}". File does not exist.`,
+      );
+    } else if (!this.allowExisting && Deno.statSync(value).isFile) {
+      throw new Error(
+        `Invalid file for option "${String(this.name)}". File already exists.`,
+      );
+    }
+
+    return await Deno.open(value);
+  }
+}
+
+export {
+  BooleanOption,
+  EnumOption,
+  FileOption,
+  NumberOption,
+  Option,
+  StringOption,
+};

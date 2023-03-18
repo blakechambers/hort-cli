@@ -209,3 +209,24 @@ test(
     },
   },
 );
+
+// test for adding an option using a file path
+test(
+  {
+    name: "Task() – addOption() with file path",
+    fn: () => {
+      interface ListOpts {
+        foo: Deno.FsFile;
+      }
+
+      function list({ foo }: ListOpts): void {
+      }
+
+      buildTask(list, (t) => {
+        t.addOption("foo", ArgTypes.File, (o) => {
+          o.desc = "a file path";
+        });
+      });
+    },
+  },
+);
