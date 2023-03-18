@@ -106,7 +106,7 @@ deno test
 
 ### 0.2.x work remaining
 
-- [ ] Add a file based argtype. This would be similar to string, but could
+- [x] Add a file based argtype. This would be similar to string, but could
       validate other aspects of the string based on config e.g ensure exists,
       new, etc
 - [ ] a folder ArgType. similar options to the file.
