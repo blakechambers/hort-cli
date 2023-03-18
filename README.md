@@ -42,10 +42,9 @@ const task = buildTask(helloWorld, (t) => {
   // adds an option.  this value would be specificed as --quiet, --quiet=true,
   // --quiet=1, etc. Since this is `required=false`, it is optional. If you
   // wanted to make it required, you could set `required=true`.
-  t.addOption("quiet", (o) => {
+  t.addOption("quiet", ArgTypes.Boolean, (o) => {
     o.desc = "Calms the greeting.  No need for all the spice!";
     o.required = false;
-    o.type = ArgTypes.Boolean;
   });
 });
 
@@ -109,8 +108,6 @@ deno test
 ### Ideas for the future
 
 - In addition to `ArgTypes.String` and `ArgTypes.Boolean`, add:
-  - an enum based path. With this, the formatted help text could use those
-    values to build automated help text.
   - a file based path. This would be similar to string, but would validate the
     files presence.
 - better formatting for arguments. Currently, the output doesn't display them.
