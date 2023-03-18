@@ -630,3 +630,49 @@ test({
     resetConsoleSpy();
   },
 });
+
+test({
+  name: "runner – enum option with invalid value",
+  fn: async () => {
+    enum Foo {
+      Bar = "bar",
+      Baz = "baz",
+    }
+
+    interface ListOpts {
+      foo: Foo;
+    }
+
+    function list({ foo }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", ArgTypes.Enum, (o) => {
+        o.desc = "foo description";
+        o.required = true;
+        o.values = ["bar", "baz"];
+      });
+    });
+
+    const args: string[] = [];
+    const options = { foo: "wrong_value" };
+
+    await assertThrowsAsync(
+      async () => {
+        await run({ task, args, options });
+      },
+      Error,
+      `Invalid value for option "foo". Expected one of: bar, baz`,
+    );
+    resetConsoleSpy();
+  },
+});

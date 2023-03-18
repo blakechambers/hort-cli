@@ -85,9 +85,10 @@ class EnumOption<TParams> extends Option<TParams> {
   ): string {
     const value = ensureString(arg);
 
+    // `Invalid value for option "foo". Expected one of: bar, baz`
     if (!this.values.includes(value as string)) {
       throw new Error(
-        `Invalid value for option ${String(this.name)}. Valid values are: ${
+        `Invalid value for option "${String(this.name)}". Expected one of: ${
           this.values.join(", ")
         }`,
       );

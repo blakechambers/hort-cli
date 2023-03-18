@@ -98,4 +98,10 @@ class EnumArgument<TParams> extends Argument<TParams> {
   }
 }
 
-export { BooleanArgument, EnumArgument, NumberArgument, StringArgument };
+export {
+  Argument,
+  BooleanArgument,
+  EnumArgument,
+  NumberArgument,
+  StringArgument,
+};

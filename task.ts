@@ -1,6 +1,7 @@
 import type { CB } from "./shared/types.ts";
 import { ArgTypes } from "./shared/types.ts";
 import {
+  Argument,
   BooleanArgument,
   EnumArgument,
   NumberArgument,

@@ -1,4 +1,4 @@
-import { ensureString, materializeByArgType } from "./shared/util.ts";
+import { ensureString } from "./shared/util.ts";
 import type { Task } from "./task.ts";
 import type { Option } from "./option.ts";
 
