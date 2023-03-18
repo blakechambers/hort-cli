@@ -71,26 +71,4 @@ function ensureBoolean(arg: string | number | boolean): boolean {
   );
 }
 
-function exhaustiveEnumCheck(input: never): never {
-  throw new Error(`Exhaustive check failed.`);
-}
-
-function materializeByArgType(
-  argType: ArgTypes,
-  cliInput: number | string | boolean,
-): string | boolean | number {
-  switch (argType) {
-    case ArgTypes.String:
-      return ensureString(cliInput);
-    case ArgTypes.Boolean:
-      return ensureBoolean(cliInput);
-    case ArgTypes.Number:
-      return ensureNumber(cliInput);
-    case ArgTypes.Enum:
-      return ensureString(cliInput);
-    default:
-      exhaustiveEnumCheck(argType);
-  }
-}
-
-export { ensureBoolean, ensureNumber, ensureString, materializeByArgType };
+export { ensureBoolean, ensureNumber, ensureString };

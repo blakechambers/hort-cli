@@ -153,8 +153,7 @@ async function run(
     const nonSymbolName = withoutSymbol(argument.name);
 
     if (args[index] || argument.required) {
-      namedThings[nonSymbolName] = materializeByArgType(
-        argument.type,
+      namedThings[nonSymbolName] = argument.materializeAndEnsureValid(
         args[index],
       );
     } else {
