@@ -33,10 +33,9 @@ const task = buildTask(helloWorld, (t) => {
   // is trying to demonstrate the functionality of the tool, this is
   // required.  If you wanted to make it optional, you could instead use
   // addOption.  See the next block for that.
-  t.addArgument("name", (a) => {
+  t.addArgument("name", ArgTypes.String, (a) => {
     a.desc = "Who should we say hello to?";
     a.required = true;
-    a.type = ArgTypes.String;
   });
 
   // adds an option.  this value would be specificed as --quiet, --quiet=true,
@@ -105,21 +104,25 @@ cases is something that I've enjoyed. This tool hopefully helps to support that.
 deno test
 ```
 
+### 0.2.x work remaining
+
+- [ ] Add a file based argtype. This would be similar to string, but could
+      validate other aspects of the string based on config e.g ensure exists,
+      new, etc
+- [ ] a folder ArgType. similar options to the file.
+- [ ] better formatting for arguments. Currently, the output doesn't display
+      them.
+- [ ] formalize error classes
+
 ### Ideas for the future
 
-- In addition to `ArgTypes.String`, `ArgTypes.Boolean`, number, and enum, add:
-  - a file based path. This would be similar to string, but would validate the
-    files presence. based on args could ensure exists, new, etc
-  - a folder path. based on args, can ensure new, validate presence, etc
-- better formatting for arguments. Currently, the output doesn't display them.
-- refactoring split an input types class away from option and argument (instead
-  of mirroring types between them)
 - support adding aliases for option params.
 - testing around help text output scenarios.
 - support better formatted output utils (both for docs and colorized formatted
   output). This could/would be a separate utility.
   - components: table formatting, padding, justification, iterating line writer
-- formalize error classes
+- refactoring split an input types class away from option and argument (instead
+  of mirroring types between them)
 - support a top level stdin full and stdin piped input type
 - support both async and non async functions
 - refactor the help message formatting to be a separate repo
