@@ -3,6 +3,7 @@ enum ArgTypes {
   Boolean = "Boolean",
   Number = "Number",
   Enum = "Enum",
+  File = "File",
 }
 
 type InterfaceKeys<T> = keyof T;

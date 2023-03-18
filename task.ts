@@ -4,12 +4,14 @@ import {
   Argument,
   BooleanArgument,
   EnumArgument,
+  FileArgument,
   NumberArgument,
   StringArgument,
 } from "./argument.ts";
 import {
   BooleanOption,
   EnumOption,
+  FileOption,
   NumberOption,
   Option,
   StringOption,
@@ -92,6 +94,11 @@ class Task<TParams> {
   ): void;
   addArgument(
     name: keyof TParams,
+    type: ArgTypes.File,
+    proc: CB<FileArgument<TParams>>,
+  ): void;
+  addArgument(
+    name: keyof TParams,
     type: ArgTypes,
     proc: unknown,
   ): void {
@@ -130,6 +137,14 @@ class Task<TParams> {
           ),
         );
         break;
+      case ArgTypes.File:
+        this.arguments.push(
+          new FileArgument<TParams>(
+            name,
+            proc as CB<FileArgument<TParams>>,
+          ),
+        );
+        break;
       default:
         exhaustiveCheck(type);
     }
@@ -154,6 +169,11 @@ class Task<TParams> {
     name: keyof TParams,
     type: ArgTypes.Enum,
     proc: CB<EnumOption<TParams>>,
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes.File,
+    proc: CB<FileOption<TParams>>,
   ): void;
   addOption(
     name: keyof TParams,
@@ -183,6 +203,12 @@ class Task<TParams> {
         this.options.set(
           name,
           new EnumOption<TParams>(name, [], proc as CB<EnumOption<TParams>>),
+        );
+        break;
+      case ArgTypes.File:
+        this.options.set(
+          name,
+          new FileOption<TParams>(name, proc as CB<FileOption<TParams>>),
         );
         break;
       default:

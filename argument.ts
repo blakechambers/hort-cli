@@ -18,7 +18,7 @@ class Argument<TParams> {
 
   materializeAndEnsureValid(
     arg: string | number | boolean,
-  ): string | number | boolean {
+  ): string | number | boolean | Promise<Deno.FsFile> {
     throw new Error("not implemented");
   }
 }
@@ -98,10 +98,53 @@ class EnumArgument<TParams> extends Argument<TParams> {
   }
 }
 
+class FileArgument<TParams> extends Argument<TParams> {
+  allowNew: boolean;
+  allowExisting: boolean;
+
+  constructor(
+    name: InterfaceKeys<TParams>,
+    proc?: CB<FileArgument<TParams>>,
+  ) {
+    super(ArgTypes.File, name);
+    this.allowNew = false;
+    this.allowExisting = true;
+
+    if (proc) proc(this);
+  }
+
+  async materializeAndEnsureValid(
+    arg: string | number | boolean,
+  ) {
+    const value = ensureString(arg);
+
+    if (!this.allowNew && !this.allowExisting) {
+      throw new Error(
+        `Invalid file configuration for argument "${String(this.name)}".`,
+      );
+    } else if (!this.allowNew && !Deno.statSync(value).isFile) {
+      throw new Error(
+        `Invalid file for argument "${
+          String(this.name)
+        }". File does not exist.`,
+      );
+    } else if (!this.allowExisting && Deno.statSync(value).isFile) {
+      throw new Error(
+        `Invalid file for argument "${
+          String(this.name)
+        }". File already exists.`,
+      );
+    }
+
+    return await Deno.open(value);
+  }
+}
+
 export {
   Argument,
   BooleanArgument,
   EnumArgument,
+  FileArgument,
   NumberArgument,
   StringArgument,
 };
