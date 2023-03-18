@@ -29,6 +29,10 @@ function buildTask<TFunc extends BaseFunc>(
   return new Task<FuncParams<typeof func>>(func.name, func, cb);
 }
 
+function exhaustiveCheck(_val: never): never {
+  throw new Error("exhaustive check failed");
+}
+
 class Task<TParams> {
   name: string;
   func: ((args: TParams) => void) | undefined;
@@ -66,13 +70,6 @@ class Task<TParams> {
     });
   }
 
-  // addArgument(name: keyof TParams, proc: CB<Argument<TParams>>) {
-  //   this.ensurePriorArgumentsAreRequired();
-
-  //   this.arguments.push(new Argument<TParams>(name, proc));
-  // }
-
-  // addArgument similar to above, but using a type flow similar to addOption
   addArgument(
     name: keyof TParams,
     type: ArgTypes.String,
@@ -134,7 +131,7 @@ class Task<TParams> {
         );
         break;
       default:
-        throw new Error("unknown argument type");
+        exhaustiveCheck(type);
     }
   }
 
@@ -189,7 +186,7 @@ class Task<TParams> {
         );
         break;
       default:
-        throw new Error("invalid type");
+        exhaustiveCheck(type);
     }
   }
 
