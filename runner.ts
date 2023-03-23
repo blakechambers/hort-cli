@@ -1,4 +1,5 @@
 import { ensureString } from "./shared/util.ts";
+import { Block, MultiColumnLayoutBlock } from "./deps.ts";
 import type { Task } from "./task.ts";
 import type { Option } from "./option.ts";
 
@@ -17,29 +18,51 @@ interface HelpMessageOpts {
   optionsList?: Record<string, string>;
 }
 
-function displayTwoColumnList(
-  list: Record<string, string>,
-  spacing = "    ",
-): string {
-  const longestKey = Object.keys(list).reduce(
-    (acc, current) => acc >= current.length ? acc : current.length,
-    0,
-  );
+// function displayTwoColumnList(
+//   list: Record<string, string>,
+//   spacing = "    ",
+// ): string {
+//   const longestKey = Object.keys(list).reduce(
+//     (acc, current) => acc >= current.length ? acc : current.length,
+//     0,
+//   );
 
-  return Object.entries(list).map(([name, desc]) => {
-    return `${spacing}${name.padEnd(longestKey)}${spacing}${desc}`;
-  })
-    .join("\n");
-}
+//   return Object.entries(list).map(([name, desc]) => {
+//     return `${spacing}${name.padEnd(longestKey)}${spacing}${desc}`;
+//   })
+//     .join("\n");
+// }
 
-function formatBlockList(
-  title: string,
-  list: Record<string, string>,
-): string {
-  return `${title}:
-${displayTwoColumnList(list)}
-`;
-}
+// function formatBlockList(
+//   title: string,
+//   list: Record<string, string>,
+// ): string {
+//   return `${title}:
+// ${displayTwoColumnList(list)}
+// `;
+// }
+
+// function buildHelpMessage(
+//   {
+//     title,
+//     description,
+//     // usageExamplesList,
+//     usageDescription,
+//     subCommandsList,
+//     optionsList,
+//   }: HelpMessageOpts,
+// ): string {
+//   return [
+//     title,
+//     description,
+//     // usageExamplesList && formatBlockList("Usage", usageExamplesList),
+//     usageDescription,
+//     subCommandsList && Object.values(subCommandsList).length > 0 &&
+//     formatBlockList("Sub commands", subCommandsList),
+//     optionsList && Object.values(optionsList).length > 0 &&
+//     formatBlockList("Options", optionsList),
+//   ].filter((x) => x).map((y) => y && y.trim()).join("\n\n") + "\n";
+// }
 
 function buildHelpMessage(
   {
@@ -51,16 +74,67 @@ function buildHelpMessage(
     optionsList,
   }: HelpMessageOpts,
 ): string {
-  return [
-    title,
-    description,
-    // usageExamplesList && formatBlockList("Usage", usageExamplesList),
-    usageDescription,
-    subCommandsList && Object.values(subCommandsList).length > 0 &&
-    formatBlockList("Sub commands", subCommandsList),
-    optionsList && Object.values(optionsList).length > 0 &&
-    formatBlockList("Options", optionsList),
-  ].filter((x) => x).map((y) => y && y.trim()).join("\n\n") + "\n";
+  const paddingX = 2;
+  const paddingY = 1;
+
+  const titleBlock = new Block(title, {
+    paddingLeft: paddingX,
+    paddingRight: paddingX,
+    paddingTop: paddingY,
+    // paddingBottom: paddingY, // let next block handle this
+  });
+
+  const descriptionBlock = new Block(description, {
+    paddingLeft: paddingX,
+    paddingRight: paddingX,
+    paddingTop: paddingY,
+    // paddingBottom: paddingY, // let next block handle this
+  });
+
+  const usageDescriptionBlock = new Block(usageDescription, {
+    paddingLeft: paddingX,
+    paddingRight: paddingX,
+    paddingTop: paddingY,
+    // paddingBottom: paddingY, // let next block handle this
+  });
+
+  const subCommandsBlock = new MultiColumnLayoutBlock(
+    Object.entries(subCommandsList ?? {}).map(([name, desc]) => {
+      return [name, desc];
+    }),
+    {
+      paddingLeft: paddingX,
+      paddingRight: paddingX,
+      paddingTop: paddingY,
+      // paddingBottom: paddingY, // let next block handle this
+    },
+  );
+
+  const optionsBlock = new MultiColumnLayoutBlock(
+    Object.entries(optionsList ?? {}).map(([name, desc]) => {
+      return [name, desc];
+    }),
+    {
+      paddingLeft: paddingX,
+      paddingRight: paddingX,
+      paddingTop: paddingY,
+      // paddingBottom: paddingY, // let next block handle this
+    },
+  );
+
+  const blocks = [
+    titleBlock,
+    descriptionBlock,
+    usageDescriptionBlock,
+    subCommandsBlock,
+    optionsBlock,
+  ];
+
+  const { columns: width, rows: height } = Deno.consoleSize();
+
+  blocks.forEach((block) => {
+    console.log(block.render(width));
+  });
 }
 
 const commands = {
