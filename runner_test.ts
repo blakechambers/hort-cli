@@ -1,6 +1,6 @@
 import { assertEquals, assertThrowsAsync } from "./test_deps.ts";
 import { ArgTypes, buildTask, Task } from "./mod.ts";
-import { run } from "./runner.ts";
+import { run, SystemMessages } from "./runner.ts";
 import { buildSpy, mockPropOnGlobal } from "./test_spy.ts";
 
 const { test } = Deno;
@@ -522,15 +522,28 @@ test({
 
     // was not called
     assertEquals(childCallArgs, []);
-    assertEquals(consoleSpy.callArgs, [`parent
+    //     assertEquals(consoleSpy.callArgs, [`parent
 
-Sub commands:
-    child    undefined
-`]);
+    // Sub commands:
+    //     child    undefined
+    // `]);
+
+    assertEquals(consoleSpy.callArgs.map((x) => String(x).trim()), [
+      "",
+      "parent",
+      "",
+      "Sub commands",
+      "",
+      `child  ${SystemMessages.DescriptionNotProvided}`,
+    ]);
 
     resetConsoleSpy();
   },
 });
+
+function trim(str: string): string {
+  return str.trim();
+}
 
 test({
   name: "runner – help text formatting",
@@ -575,14 +588,17 @@ test({
 
     await run({ task, args, options });
 
-    assertEquals(consoleSpy.callArgs, [`list
-
-a test function named list
-
-Options:
-    foo    foo description
-    bar    foo description
-`]);
+    assertEquals(consoleSpy.callArgs.map((x) => String(x).trim()), [
+      "",
+      "list",
+      "",
+      "a test function named list",
+      "",
+      "Options",
+      "",
+      "--foo  foo description",
+      "--bar  foo description",
+    ]);
 
     resetConsoleSpy();
   },
