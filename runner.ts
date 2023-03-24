@@ -18,122 +18,137 @@ interface HelpMessageOpts {
   optionsList?: Record<string, string>;
 }
 
-// function displayTwoColumnList(
-//   list: Record<string, string>,
-//   spacing = "    ",
-// ): string {
-//   const longestKey = Object.keys(list).reduce(
-//     (acc, current) => acc >= current.length ? acc : current.length,
-//     0,
-//   );
+enum SystemMessages {
+  DescriptionNotProvided = "[No description provided]",
+}
 
-//   return Object.entries(list).map(([name, desc]) => {
-//     return `${spacing}${name.padEnd(longestKey)}${spacing}${desc}`;
-//   })
-//     .join("\n");
-// }
+// adds a block at the top for title then rows of 2 columns blocks
+function titledList(
+  title: string,
+  list: Record<string, string>,
+  paddingX: number,
+  paddingY: number,
+): Block[] {
+  const blocks: Block[] = [];
 
-// function formatBlockList(
-//   title: string,
-//   list: Record<string, string>,
-// ): string {
-//   return `${title}:
-// ${displayTwoColumnList(list)}
-// `;
-// }
+  const indentSize = paddingX * 2;
 
-// function buildHelpMessage(
-//   {
-//     title,
-//     description,
-//     // usageExamplesList,
-//     usageDescription,
-//     subCommandsList,
-//     optionsList,
-//   }: HelpMessageOpts,
-// ): string {
-//   return [
-//     title,
-//     description,
-//     // usageExamplesList && formatBlockList("Usage", usageExamplesList),
-//     usageDescription,
-//     subCommandsList && Object.values(subCommandsList).length > 0 &&
-//     formatBlockList("Sub commands", subCommandsList),
-//     optionsList && Object.values(optionsList).length > 0 &&
-//     formatBlockList("Options", optionsList),
-//   ].filter((x) => x).map((y) => y && y.trim()).join("\n\n") + "\n";
-// }
+  blocks.push(
+    new Block(title, {
+      paddingLeft: paddingX,
+      paddingRight: paddingX,
+      paddingTop: paddingY,
+      paddingBottom: paddingY,
+    }),
+  );
 
-function buildHelpMessage(
+  // find largest key length and use that as the fixed width for the left column
+  const fixedLeftColumnWidth = Math.max(
+    ...Object.keys(list).map((key) => key.length),
+  );
+
+  Object.entries(list).forEach(([name, desc]) => {
+    const keyBlock = new Block(name, {
+      width: fixedLeftColumnWidth,
+    });
+
+    const valueBlock = new Block(desc);
+
+    blocks.push(
+      new MultiColumnLayoutBlock(
+        {
+          blocks: [keyBlock, valueBlock],
+          marginX: paddingX,
+          paddingLeft: paddingX + indentSize,
+          paddingRight: paddingX,
+          // paddingBottom: paddingY, // let next block handle this
+        },
+      ),
+    );
+  });
+
+  return blocks;
+}
+
+function outputHelpMessage(
   {
     title,
     description,
-    // usageExamplesList,
     usageDescription,
     subCommandsList,
     optionsList,
   }: HelpMessageOpts,
-): string {
+): void {
   const paddingX = 2;
   const paddingY = 1;
 
-  const titleBlock = new Block(title, {
-    paddingLeft: paddingX,
-    paddingRight: paddingX,
-    paddingTop: paddingY,
-    // paddingBottom: paddingY, // let next block handle this
-  });
+  let blocks: Block[] = [];
 
-  const descriptionBlock = new Block(description, {
-    paddingLeft: paddingX,
-    paddingRight: paddingX,
-    paddingTop: paddingY,
-    // paddingBottom: paddingY, // let next block handle this
-  });
-
-  const usageDescriptionBlock = new Block(usageDescription, {
-    paddingLeft: paddingX,
-    paddingRight: paddingX,
-    paddingTop: paddingY,
-    // paddingBottom: paddingY, // let next block handle this
-  });
-
-  const subCommandsBlock = new MultiColumnLayoutBlock(
-    Object.entries(subCommandsList ?? {}).map(([name, desc]) => {
-      return [name, desc];
-    }),
-    {
+  blocks.push(
+    new Block(title, {
       paddingLeft: paddingX,
       paddingRight: paddingX,
       paddingTop: paddingY,
       // paddingBottom: paddingY, // let next block handle this
-    },
-  );
-
-  const optionsBlock = new MultiColumnLayoutBlock(
-    Object.entries(optionsList ?? {}).map(([name, desc]) => {
-      return [name, desc];
     }),
-    {
-      paddingLeft: paddingX,
-      paddingRight: paddingX,
-      paddingTop: paddingY,
-      // paddingBottom: paddingY, // let next block handle this
-    },
   );
 
-  const blocks = [
-    titleBlock,
-    descriptionBlock,
-    usageDescriptionBlock,
-    subCommandsBlock,
-    optionsBlock,
-  ];
+  if (description) {
+    blocks.push(
+      new Block(description, {
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+        paddingTop: paddingY,
+        // paddingBottom: paddingY, // let next block handle this
+      }),
+    );
+  }
 
-  const { columns: width, rows: height } = Deno.consoleSize();
+  if (usageDescription) {
+    blocks.push(
+      new Block(usageDescription, {
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+        paddingTop: paddingY,
+        // paddingBottom: paddingY, // let next block handle this
+      }),
+    );
+  }
+
+  if (subCommandsList && Object.values(subCommandsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Sub commands",
+      subCommandsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
+  if (optionsList && Object.values(optionsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Options",
+      optionsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
+  let width: number = 120;
+
+  // some terminals or runtimes don't provide this, so consoleSize errors.  In those cases, default to the width above.
+  try {
+    const { columns } = Deno.consoleSize();
+    width = columns;
+  } catch (e) {
+    // ignore
+  }
 
   blocks.forEach((block) => {
-    console.log(block.render(width));
+    const iter = block.render(width);
+
+    for (const line of iter) {
+      console.log(line);
+    }
   });
 }
 
@@ -163,18 +178,35 @@ function commaDelimitedList(arr: Array<string>): string {
 }
 
 function displayHelpForTask(task: Task<unknown>): void {
-  console.log(buildHelpMessage({
-    title: task.name,
-    description: task.desc,
-    optionsList: [...task.options].reduce(
-      (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-      {},
-    ),
-    subCommandsList: [...task.subTasks].reduce(
-      (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-      {},
-    ),
-  }));
+  const title = task.name;
+  const description = task.desc;
+
+  const optionsList: Record<string, string> = [...task.options].reduce<
+    Record<string, string>
+  >(
+    (sum, [name, option]) => ({
+      ...sum,
+      [`--${name}`]: option.desc || SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
+  const subCommandsList: Record<string, string> = [...task.subTasks].reduce<
+    Record<string, string>
+  >(
+    (sum, [name, option]) => ({
+      ...sum,
+      [name]: option.desc || SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
+  outputHelpMessage({
+    title,
+    description,
+    optionsList,
+    subCommandsList,
+  });
 }
 
 async function run(
@@ -299,4 +331,4 @@ function withoutSymbol(item: string | number | symbol): string | number {
   }
 }
 
-export { run };
+export { run, SystemMessages };
