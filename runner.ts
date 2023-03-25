@@ -143,13 +143,19 @@ function outputHelpMessage(
     // ignore
   }
 
+  let lines: string[] = [];
   blocks.forEach((block) => {
     const iter = block.render(width);
 
     for (const line of iter) {
-      console.log(line);
+      lines.push(line.trimEnd());
     }
   });
+
+  // add a blank line at the end.  later this is fixed by a Stack component in the format package.
+  lines.push("");
+
+  console.log(lines.join("\n"));
 }
 
 const commands = {
