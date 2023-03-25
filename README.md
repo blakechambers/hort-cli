@@ -1,10 +1,22 @@
 # hort-cli
 
-hort-cli is a deno commandline tool interface tool. Similar to
-[thor](http://whatisthor.com), hort's goal is to provide a small wrapper around
-existing deno functions – to make them accessible via the commandline.
+A lightweight Deno command-line interface builder for creating custom CLI tools.
 
-Here's a simple example:
+hort-cli is a Deno command-line tool interface tool. Similar to
+[thor](http://whatisthor.com), hort's goal is to provide a small wrapper around
+existing Deno functions – to make them accessible via the command line.
+
+## Table of Contents
+
+- [Introduction](#hort-cli)
+- [Example](#example)
+- [Motivation](#motivation)
+- [Local Testing](#local-testing)
+- [Roadmap](#roadmap)
+  - [0.2.x Work Remaining](#02x-work-remaining)
+  - [Ideas for the Future](#ideas-for-the-future)
+
+## Example
 
 ```typescript
 import { ArgTypes, buildTask, main } from "../mod.ts";
@@ -89,41 +101,43 @@ Options:
 Beyond what's shown in this example, hort supports nesting tasks and building
 tasks from a directory (see [examples](./examples)).
 
-### Why
+## Motivation
 
-I made hort tool to help similify my local tooling as I was exploring deno. It's
+I created hort-cli to simplify my local tooling while exploring Deno. It's
 likely not what you're looking for (maybe [cliffy](https://cliffy.io) would be
 better and more stable for now).
 
-As mentioned above, thors ability to build and support more complex CLI use
+As mentioned above, thor's ability to build and support more complex CLI use
 cases is something that I've enjoyed. This tool hopefully helps to support that.
 
-### Local testing
+## Local testing
 
 ```
 deno test
 ```
 
-### 0.2.x work remaining
+## Roadmap
 
-- [x] Add a file based argtype. This would be similar to string, but could
+### 0.2.x Work Remaining
+
+- [x] Add a file-based argtype. This would be similar to string, but could
       validate other aspects of the string based on config e.g ensure exists,
       new, etc
-- [ ] a folder ArgType. similar options to the file.
-- [ ] better formatting for arguments. Currently, the output doesn't display
+- [ ] A folder ArgType. Similar options to the file.
+- [ ] Better formatting for arguments. Currently, the output doesn't display
       them.
-- [ ] formalize error classes
+- [ ] Formalize error classes
 
-### Ideas for the future
+### Ideas for the Future
 
-- support adding aliases for option params.
-- testing around help text output scenarios.
-- support better formatted output utils (both for docs and colorized formatted
+- Support adding aliases for option params.
+- Testing around help text output scenarios.
+- Support better formatted output utils (both for docs and colorized formatted
   output). This could/would be a separate utility.
-  - components: table formatting, padding, justification, iterating line writer
-- refactoring split an input types class away from option and argument (instead
+  - Components: table formatting, padding, justification, iterating line writer
+- Refactoring split an input types class away from option and argument (instead
   of mirroring types between them)
-- support a top level stdin full and stdin piped input type
-- support both async and non async functions
-- refactor the help message formatting to be a separate repo
-- create an alternate DSL that uses typescript decorators and a class based API
+- Support a top-level stdin full and stdin piped input type
+- Support both async and non-async functions
+- Refactor the help message formatting to be a separate repo
+- Create an alternate DSL that uses TypeScript decorators and a class-based API
