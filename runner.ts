@@ -16,6 +16,7 @@ interface HelpMessageOpts {
   usageDescription?: string;
   subCommandsList?: Record<string, string>;
   optionsList?: Record<string, string>;
+  argumentsList?: Record<string, string>;
 }
 
 enum SystemMessages {
@@ -77,6 +78,7 @@ function outputHelpMessage(
     usageDescription,
     subCommandsList,
     optionsList,
+    argumentsList,
   }: HelpMessageOpts,
 ): void {
   const paddingX = 2;
@@ -119,6 +121,15 @@ function outputHelpMessage(
     blocks = blocks.concat(titledList(
       "Sub commands",
       subCommandsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
+  if (argumentsList && Object.values(argumentsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Arguments",
+      argumentsList,
       paddingX,
       paddingY,
     ));
@@ -197,6 +208,17 @@ function displayHelpForTask(task: Task<unknown>): void {
     {},
   );
 
+  const argumentsList: Record<string, string> = [...task.arguments].reduce<
+    Record<string, string>
+  >(
+    (sum, argument) => ({
+      ...sum,
+      [`<${argument.name}>`]: argument.desc ||
+        SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
   const subCommandsList: Record<string, string> = [...task.subTasks].reduce<
     Record<string, string>
   >(
@@ -212,6 +234,7 @@ function displayHelpForTask(task: Task<unknown>): void {
     description,
     optionsList,
     subCommandsList,
+    argumentsList,
   });
 }
 

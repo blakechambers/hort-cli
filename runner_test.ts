@@ -587,6 +587,10 @@ test({
 
   a test function named list
 
+  Arguments
+
+      <baz>  A required argument
+
   Options
 
       --foo  foo description
