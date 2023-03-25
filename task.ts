@@ -3,6 +3,7 @@ import { ArgTypes } from "./shared/types.ts";
 import {
   Argument,
   BooleanArgument,
+  DirectoryArgument,
   EnumArgument,
   FileArgument,
   NumberArgument,
@@ -10,6 +11,7 @@ import {
 } from "./argument.ts";
 import {
   BooleanOption,
+  DirectoryOption,
   EnumOption,
   FileOption,
   NumberOption,
@@ -99,6 +101,11 @@ class Task<TParams> {
   ): void;
   addArgument(
     name: keyof TParams,
+    type: ArgTypes.Directory,
+    proc: CB<DirectoryArgument<TParams>>,
+  ): void;
+  addArgument(
+    name: keyof TParams,
     type: ArgTypes,
     proc: unknown,
   ): void {
@@ -145,6 +152,14 @@ class Task<TParams> {
           ),
         );
         break;
+      case ArgTypes.Directory:
+        this.arguments.push(
+          new DirectoryArgument<TParams>(
+            name,
+            proc as CB<DirectoryArgument<TParams>>,
+          ),
+        );
+        break;
       default:
         exhaustiveCheck(type);
     }
@@ -174,6 +189,11 @@ class Task<TParams> {
     name: keyof TParams,
     type: ArgTypes.File,
     proc: CB<FileOption<TParams>>,
+  ): void;
+  addOption(
+    name: keyof TParams,
+    type: ArgTypes.Directory,
+    proc: CB<DirectoryOption<TParams>>,
   ): void;
   addOption(
     name: keyof TParams,
@@ -209,6 +229,15 @@ class Task<TParams> {
         this.options.set(
           name,
           new FileOption<TParams>(name, proc as CB<FileOption<TParams>>),
+        );
+        break;
+      case ArgTypes.Directory:
+        this.options.set(
+          name,
+          new DirectoryOption<TParams>(
+            name,
+            proc as CB<DirectoryOption<TParams>>,
+          ),
         );
         break;
       default:

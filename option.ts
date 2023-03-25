@@ -1,6 +1,7 @@
 import { ArgTypes } from "./shared/types.ts";
 import type { CB, InterfaceKeys } from "./shared/types.ts";
 import { ensureBoolean, ensureNumber, ensureString } from "./shared/util.ts";
+import { Directory } from "./shared/directory.ts";
 
 class Option<TParams> {
   name: InterfaceKeys<TParams>;
@@ -18,7 +19,7 @@ class Option<TParams> {
 
   materializeAndEnsureValid(
     arg: string | number | boolean,
-  ): string | number | boolean | Promise<Deno.FsFile> {
+  ): string | number | boolean | Promise<Deno.FsFile> | Promise<Directory> {
     throw new Error("not implemented");
   }
 }
@@ -135,8 +136,47 @@ class FileOption<TParams> extends Option<TParams> {
   }
 }
 
+class DirectoryOption<TParams> extends Option<TParams> {
+  // allowNew: boolean;
+  allowExisting: boolean;
+
+  constructor(
+    name: InterfaceKeys<TParams>,
+    proc?: CB<DirectoryOption<TParams>>,
+  ) {
+    super(ArgTypes.Directory, name);
+    // this.allowNew = false;
+    this.allowExisting = true;
+
+    if (proc) proc(this);
+  }
+
+  async materializeAndEnsureValid(
+    arg: string | number | boolean,
+  ) {
+    const value = ensureString(arg);
+
+    if (!this.allowExisting) {
+      throw new Error(
+        `Invalid directory configuration for option "${String(this.name)}".`,
+      );
+    } else if (!Deno.statSync(value).isDirectory) {
+      throw new Error(
+        `Invalid directory for option "${
+          String(this.name)
+        }". Directory does not exist.`,
+      );
+    }
+
+    const ensureExists = this.allowExisting;
+
+    return new Directory({ path: value, ensureExists });
+  }
+}
+
 export {
   BooleanOption,
+  DirectoryOption,
   EnumOption,
   FileOption,
   NumberOption,

@@ -1,5 +1,6 @@
 import { assertEquals, assertThrows } from "./test_deps.ts";
 import { buildTask, Task } from "./task.ts";
+import { Directory } from "./shared/directory.ts";
 import { ArgTypes } from "./mod.ts";
 
 const { test } = Deno;
@@ -210,7 +211,6 @@ test(
   },
 );
 
-// test for adding an option using a file path
 test(
   {
     name: "Task() – addOption() with file path",
@@ -225,6 +225,26 @@ test(
       buildTask(list, (t) => {
         t.addOption("foo", ArgTypes.File, (o) => {
           o.desc = "a file path";
+        });
+      });
+    },
+  },
+);
+
+test(
+  {
+    name: "Task() – addOption() with directory path",
+    fn: () => {
+      interface ListOpts {
+        foo: Directory;
+      }
+
+      function list({ foo }: ListOpts): void {
+      }
+
+      buildTask(list, (t) => {
+        t.addOption("foo", ArgTypes.Directory, (o) => {
+          o.desc = "a directory path";
         });
       });
     },
