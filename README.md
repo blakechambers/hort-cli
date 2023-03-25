@@ -116,28 +116,3 @@ cases is something that I've enjoyed. This tool hopefully helps to support that.
 deno test
 ```
 
-## Roadmap
-
-### 0.2.x Work Remaining
-
-- [x] Add a file-based argtype. This would be similar to string, but could
-      validate other aspects of the string based on config e.g ensure exists,
-      new, etc
-- [ ] A folder ArgType. Similar options to the file.
-- [ ] Better formatting for arguments. Currently, the output doesn't display
-      them.
-- [ ] Formalize error classes
-
-### Ideas for the Future
-
-- Support adding aliases for option params.
-- Testing around help text output scenarios.
-- Support better formatted output utils (both for docs and colorized formatted
-  output). This could/would be a separate utility.
-  - Components: table formatting, padding, justification, iterating line writer
-- Refactoring split an input types class away from option and argument (instead
-  of mirroring types between them)
-- Support a top-level stdin full and stdin piped input type
-- Support both async and non-async functions
-- Refactor the help message formatting to be a separate repo
-- Create an alternate DSL that uses TypeScript decorators and a class-based API
