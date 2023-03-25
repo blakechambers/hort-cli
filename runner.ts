@@ -16,6 +16,7 @@ interface HelpMessageOpts {
   usageDescription?: string;
   subCommandsList?: Record<string, string>;
   optionsList?: Record<string, string>;
+  argumentsList?: Record<string, string>;
 }
 
 enum SystemMessages {
@@ -77,6 +78,7 @@ function outputHelpMessage(
     usageDescription,
     subCommandsList,
     optionsList,
+    argumentsList,
   }: HelpMessageOpts,
 ): void {
   const paddingX = 2;
@@ -124,6 +126,15 @@ function outputHelpMessage(
     ));
   }
 
+  if (argumentsList && Object.values(argumentsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Arguments",
+      argumentsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
   if (optionsList && Object.values(optionsList).length > 0) {
     blocks = blocks.concat(titledList(
       "Options",
@@ -143,13 +154,19 @@ function outputHelpMessage(
     // ignore
   }
 
+  let lines: string[] = [];
   blocks.forEach((block) => {
     const iter = block.render(width);
 
     for (const line of iter) {
-      console.log(line);
+      lines.push(line.trimEnd());
     }
   });
+
+  // add a blank line at the end.  later this is fixed by a Stack component in the format package.
+  lines.push("");
+
+  console.log(lines.join("\n"));
 }
 
 const commands = {
@@ -191,6 +208,17 @@ function displayHelpForTask(task: Task<unknown>): void {
     {},
   );
 
+  const argumentsList: Record<string, string> = [...task.arguments].reduce<
+    Record<string, string>
+  >(
+    (sum, argument) => ({
+      ...sum,
+      [`<${argument.name}>`]: argument.desc ||
+        SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
   const subCommandsList: Record<string, string> = [...task.subTasks].reduce<
     Record<string, string>
   >(
@@ -206,6 +234,7 @@ function displayHelpForTask(task: Task<unknown>): void {
     description,
     optionsList,
     subCommandsList,
+    argumentsList,
   });
 }
 

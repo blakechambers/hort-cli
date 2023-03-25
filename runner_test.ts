@@ -523,28 +523,19 @@ test({
 
     // was not called
     assertEquals(childCallArgs, []);
-    //     assertEquals(consoleSpy.callArgs, [`parent
+    assertEquals(consoleSpy.callArgs, [
+      `
+  parent
 
-    // Sub commands:
-    //     child    undefined
-    // `]);
+  Sub commands
 
-    assertEquals(consoleSpy.callArgs.map((x) => String(x).trim()), [
-      "",
-      "parent",
-      "",
-      "Sub commands",
-      "",
-      `child  ${SystemMessages.DescriptionNotProvided}`,
+      child  ${SystemMessages.DescriptionNotProvided}
+`,
     ]);
 
     resetConsoleSpy();
   },
 });
-
-function trim(str: string): string {
-  return str.trim();
-}
 
 test({
   name: "runner – help text formatting",
@@ -589,18 +580,23 @@ test({
 
     await run({ task, args, options });
 
-    assertEquals(consoleSpy.callArgs.map((x) => String(x).trim()), [
-      "",
-      "list",
-      "",
-      "a test function named list",
-      "",
-      "Options",
-      "",
-      "--foo  foo description",
-      "--bar  foo description",
-    ]);
+    assertEquals(
+      consoleSpy.callArgs[0],
+      `
+  list
 
+  a test function named list
+
+  Arguments
+
+      <baz>  A required argument
+
+  Options
+
+      --foo  foo description
+      --bar  foo description
+`,
+    );
     resetConsoleSpy();
   },
 });
