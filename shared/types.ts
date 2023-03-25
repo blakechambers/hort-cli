@@ -4,6 +4,7 @@ enum ArgTypes {
   Number = "Number",
   Enum = "Enum",
   File = "File",
+  Directory = "Directory",
 }
 
 type InterfaceKeys<T> = keyof T;

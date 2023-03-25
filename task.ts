@@ -145,6 +145,8 @@ class Task<TParams> {
           ),
         );
         break;
+      case ArgTypes.Directory:
+        throw new Error("Directory type not implemented");
       default:
         exhaustiveCheck(type);
     }
@@ -211,6 +213,8 @@ class Task<TParams> {
           new FileOption<TParams>(name, proc as CB<FileOption<TParams>>),
         );
         break;
+      case ArgTypes.Directory:
+        throw new Error("Directory type not implemented");
       default:
         exhaustiveCheck(type);
     }

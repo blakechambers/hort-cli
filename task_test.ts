@@ -210,7 +210,6 @@ test(
   },
 );
 
-// test for adding an option using a file path
 test(
   {
     name: "Task() – addOption() with file path",
