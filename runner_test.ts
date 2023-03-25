@@ -2,6 +2,7 @@ import { assertEquals, assertThrowsAsync } from "./test_deps.ts";
 import { ArgTypes, buildTask, Task } from "./mod.ts";
 import { run, SystemMessages } from "./runner.ts";
 import { buildSpy, mockPropOnGlobal } from "./test_spy.ts";
+import { Directory } from "./shared/directory.ts";
 
 const { test } = Deno;
 
@@ -689,6 +690,46 @@ test({
       Error,
       `Invalid value for option "foo". Expected one of: bar, baz`,
     );
+    resetConsoleSpy();
+  },
+});
+
+test({
+  name: "runner – directory option",
+  fn: async () => {
+    interface ListOpts {
+      foo: Directory;
+    }
+
+    function list({ foo }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", ArgTypes.Directory, (o) => {
+        o.desc = "foo description";
+        o.required = true;
+
+        o.allowExisting = true;
+      });
+    });
+
+    const args: string[] = [];
+    const options = { foo: "/tmp" };
+
+    await run({ task, args, options });
+
+    assertEquals(callArgs, [{
+      foo: new Directory({ path: "/tmp", ensureExists: true }),
+    }]);
     resetConsoleSpy();
   },
 });
