@@ -71,20 +71,4 @@ function ensureBoolean(arg: string | number | boolean): boolean {
   );
 }
 
-function materializeByArgType(
-  argType: ArgTypes,
-  cliInput: number | string | boolean,
-): string | boolean | number {
-  switch (argType) {
-    case ArgTypes.String:
-      return ensureString(cliInput);
-    case ArgTypes.Boolean:
-      return ensureBoolean(cliInput);
-    case ArgTypes.Number:
-      return ensureNumber(cliInput);
-    default:
-      throw new Error(`unexpected ArgType=${argType}`);
-  }
-}
-
-export { ensureBoolean, ensureNumber, ensureString, materializeByArgType };
+export { ensureBoolean, ensureNumber, ensureString };

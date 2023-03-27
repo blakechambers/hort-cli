@@ -1,7 +1,8 @@
 import { assertEquals, assertThrowsAsync } from "./test_deps.ts";
 import { ArgTypes, buildTask, Task } from "./mod.ts";
-import { run } from "./runner.ts";
+import { run, SystemMessages } from "./runner.ts";
 import { buildSpy, mockPropOnGlobal } from "./test_spy.ts";
+import { Directory } from "./shared/directory.ts";
 
 const { test } = Deno;
 
@@ -118,21 +119,17 @@ test({
     const [listSpy, callArgs] = buildSpy(list);
 
     const task = buildTask(listSpy, (t) => {
-      t.addOption("foo", (o) => {
-        o.type = ArgTypes.Boolean;
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.required = true;
       });
 
-      t.addOption("bar", (o) => {
-        o.type = ArgTypes.String;
+      t.addOption("bar", ArgTypes.String, (o) => {
         o.required = true;
       });
 
-      t.addArgument("baz", (a) => {
+      t.addArgument("baz", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
     });
 
@@ -152,6 +149,7 @@ test({
       aStr: string;
       aBool: boolean;
       aNumber: number;
+      aEnum: string;
     }
 
     function list({ aStr, aBool, aNumber }: ListOpts): void {
@@ -310,15 +308,39 @@ test({
         case ArgTypes.Number:
           optionName = "aNumber";
           break;
+        case ArgTypes.Enum:
+          optionName = "aEnum";
+          break;
         default:
           throw new Error("panic – unhandled ArgType");
       }
 
       const task = buildTask(listSpy, (t) => {
-        t.addOption(optionName, (o) => {
-          o.type = fieldType;
-          o.required = fieldRequired;
-        });
+        switch (fieldType) {
+          case ArgTypes.Boolean:
+            t.addOption(optionName, ArgTypes.Boolean, (o) => {
+              o.required = fieldRequired;
+            });
+            break;
+          case ArgTypes.String:
+            t.addOption(optionName, ArgTypes.String, (o) => {
+              o.required = fieldRequired;
+            });
+            break;
+          case ArgTypes.Number:
+            t.addOption(optionName, ArgTypes.Number, (o) => {
+              o.required = fieldRequired;
+            });
+            break;
+          case ArgTypes.Enum:
+            t.addOption(optionName, ArgTypes.Enum, (o) => {
+              o.required = fieldRequired;
+              o.values = ["foo", "bar"];
+            });
+            break;
+          default:
+            throw new Error("panic – unhandled ArgType");
+        }
       });
 
       const args: string[] = [];
@@ -359,8 +381,7 @@ test({
     consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
-      t.addOption("foo", (o) => {
-        o.type = ArgTypes.Boolean;
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.required = true;
       });
     });
@@ -397,13 +418,11 @@ test({
     consoleSpy.andReturnVoid();
 
     const task = buildTask(listSpy, (t) => {
-      t.addArgument("foo", (a) => {
-        a.type = ArgTypes.Boolean;
+      t.addArgument("foo", ArgTypes.Boolean, (a) => {
         a.required = false;
       });
 
-      t.addOption("bar", (o) => {
-        o.type = ArgTypes.Boolean;
+      t.addOption("bar", ArgTypes.Boolean, (o) => {
         o.required = false;
       });
     });
@@ -439,10 +458,8 @@ test({
     const childTask = buildTask(
       childSpy,
       (t) => {
-        t.addOption("quiet", (o) => {
+        t.addOption("quiet", ArgTypes.Boolean, (o) => {
           o.desc = "A required option";
-
-          o.type = ArgTypes.Boolean;
           o.required = true;
         });
       },
@@ -506,11 +523,15 @@ test({
 
     // was not called
     assertEquals(childCallArgs, []);
-    assertEquals(consoleSpy.callArgs, [`parent
+    assertEquals(consoleSpy.callArgs, [
+      `
+  parent
 
-Sub commands:
-    child    undefined
-`]);
+  Sub commands
+
+      child  ${SystemMessages.DescriptionNotProvided}
+`,
+    ]);
 
     resetConsoleSpy();
   },
@@ -538,23 +559,19 @@ test({
 
     const task = buildTask(listSpy, (t) => {
       t.desc = "a test function named list";
-      t.addOption("foo", (o) => {
+      t.addOption("foo", ArgTypes.Boolean, (o) => {
         o.desc = "foo description";
-        o.type = ArgTypes.Boolean;
         o.required = true;
       });
 
-      t.addOption("bar", (o) => {
+      t.addOption("bar", ArgTypes.String, (o) => {
         o.desc = "foo description";
-        o.type = ArgTypes.String;
         o.required = true;
       });
 
-      t.addArgument("baz", (a) => {
+      t.addArgument("baz", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
     });
 
@@ -563,15 +580,152 @@ test({
 
     await run({ task, args, options });
 
-    assertEquals(consoleSpy.callArgs, [`list
+    assertEquals(
+      consoleSpy.callArgs[0],
+      `
+  list
 
-a test function named list
+  a test function named list
 
-Options:
-    foo    foo description
-    bar    foo description
-`]);
+  Arguments
 
+      <baz>  A required argument
+
+  Options
+
+      --foo  foo description
+      --bar  foo description
+`,
+    );
+    resetConsoleSpy();
+  },
+});
+
+// enum option
+test({
+  name: "runner – enum option",
+  fn: async () => {
+    enum Foo {
+      Bar = "bar",
+      Baz = "baz",
+    }
+
+    interface ListOpts {
+      foo: Foo;
+    }
+
+    function list({ foo }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", ArgTypes.Enum, (o) => {
+        o.desc = "foo description";
+        o.required = true;
+        o.values = ["bar", "baz"];
+      });
+    });
+
+    const args: string[] = [];
+    const options = { foo: "bar" };
+
+    await run({ task, args, options });
+
+    assertEquals(callArgs, [{ foo: "bar" }]);
+    resetConsoleSpy();
+  },
+});
+
+test({
+  name: "runner – enum option with invalid value",
+  fn: async () => {
+    enum Foo {
+      Bar = "bar",
+      Baz = "baz",
+    }
+
+    interface ListOpts {
+      foo: Foo;
+    }
+
+    function list({ foo }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", ArgTypes.Enum, (o) => {
+        o.desc = "foo description";
+        o.required = true;
+        o.values = ["bar", "baz"];
+      });
+    });
+
+    const args: string[] = [];
+    const options = { foo: "wrong_value" };
+
+    await assertThrowsAsync(
+      async () => {
+        await run({ task, args, options });
+      },
+      Error,
+      `Invalid value for option "foo". Expected one of: bar, baz`,
+    );
+    resetConsoleSpy();
+  },
+});
+
+test({
+  name: "runner – directory option",
+  fn: async () => {
+    interface ListOpts {
+      foo: Directory;
+    }
+
+    function list({ foo }: ListOpts): void {
+    }
+
+    const [listSpy, callArgs] = buildSpy(list);
+    const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
+      console,
+      "log",
+      console.log,
+    );
+    consoleSpy.andReturnVoid();
+
+    const task = buildTask(listSpy, (t) => {
+      t.desc = "a test function named list";
+      t.addOption("foo", ArgTypes.Directory, (o) => {
+        o.desc = "foo description";
+        o.required = true;
+
+        o.allowExisting = true;
+      });
+    });
+
+    const args: string[] = [];
+    const options = { foo: "/tmp" };
+
+    await run({ task, args, options });
+
+    assertEquals(callArgs, [{
+      foo: new Directory({ path: "/tmp", ensureExists: true }),
+    }]);
     resetConsoleSpy();
   },
 });

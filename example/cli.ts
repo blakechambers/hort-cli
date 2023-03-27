@@ -11,12 +11,14 @@
 */
 import { main, Task } from "../mod.ts";
 import { task as listTask } from "./cli/list.ts";
+import { task as catTask } from "./cli/cat.ts";
 
 if (import.meta.main) {
   const t = new Task("Pom", undefined, (t) => {
-    t.desc = "A simple time tracker / logger";
+    t.desc = "A simple example wrapper for Hort CLI";
 
     t.addSubTask(listTask);
+    t.addSubTask(catTask);
   });
 
   main(t);

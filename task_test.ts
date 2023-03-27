@@ -1,5 +1,6 @@
 import { assertEquals, assertThrows } from "./test_deps.ts";
 import { buildTask, Task } from "./task.ts";
+import { Directory } from "./shared/directory.ts";
 import { ArgTypes } from "./mod.ts";
 
 const { test } = Deno;
@@ -21,17 +22,13 @@ test({
     const task = buildTask(list, (t) => {
       t.desc = "This is just a simple task to list things";
 
-      t.addArgument("foo", (a) => {
+      t.addArgument("foo", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
 
-      t.addOption("quiet", (o) => {
+      t.addOption("quiet", ArgTypes.Boolean, (o) => {
         o.desc = "A required option";
-
-        o.type = ArgTypes.Boolean;
         o.required = true;
       });
     });
@@ -74,17 +71,14 @@ test({
     const task = new Task<Parameters<typeof list>[0]>(list.name, list, (t) => {
       t.desc = "This is just a simple task to list things";
 
-      t.addArgument("foo", (a) => {
+      t.addArgument("foo", ArgTypes.String, (a) => {
         a.desc = "A required argument";
         a.required = true;
-
-        a.type = ArgTypes.String;
       });
 
-      t.addOption("quiet", (o) => {
+      t.addOption("quiet", ArgTypes.Boolean, (o) => {
         o.desc = "A required option";
 
-        o.type = ArgTypes.Boolean;
         o.required = true;
       });
     });
@@ -124,10 +118,8 @@ test({
       child.name,
       child,
       (t) => {
-        t.addOption("quiet", (o) => {
+        t.addOption("quiet", ArgTypes.Boolean, (o) => {
           o.desc = "A required option";
-
-          o.type = ArgTypes.Boolean;
           o.required = true;
         });
       },
@@ -174,18 +166,14 @@ test({
         () => {
           t.desc = "This is just a simple task to list things";
 
-          t.addArgument("foo", (a) => {
+          t.addArgument("foo", ArgTypes.String, (a) => {
             a.desc = "A required argument";
             a.required = false;
-
-            a.type = ArgTypes.String;
           });
 
-          t.addArgument("foo", (a) => {
+          t.addArgument("foo", ArgTypes.String, (a) => {
             a.desc = "A required argument";
             a.required = true;
-
-            a.type = ArgTypes.String;
           });
         },
         Error,
@@ -194,3 +182,71 @@ test({
     });
   },
 });
+
+// test for adding an option with a set of specific values
+test(
+  {
+    name: "Task() – addOption() with enum",
+    fn: () => {
+      // enum
+      enum Foo {
+        Bar = "bar",
+        Baz = "baz",
+      }
+
+      interface ListOpts {
+        foo: Foo;
+      }
+
+      function list({ foo }: ListOpts): void {
+      }
+
+      buildTask(list, (t) => {
+        t.addOption("foo", ArgTypes.Enum, (o) => {
+          o.desc = "an enum";
+          o.values = ["bar", "baz"];
+        });
+      });
+    },
+  },
+);
+
+test(
+  {
+    name: "Task() – addOption() with file path",
+    fn: () => {
+      interface ListOpts {
+        foo: Deno.FsFile;
+      }
+
+      function list({ foo }: ListOpts): void {
+      }
+
+      buildTask(list, (t) => {
+        t.addOption("foo", ArgTypes.File, (o) => {
+          o.desc = "a file path";
+        });
+      });
+    },
+  },
+);
+
+test(
+  {
+    name: "Task() – addOption() with directory path",
+    fn: () => {
+      interface ListOpts {
+        foo: Directory;
+      }
+
+      function list({ foo }: ListOpts): void {
+      }
+
+      buildTask(list, (t) => {
+        t.addOption("foo", ArgTypes.Directory, (o) => {
+          o.desc = "a directory path";
+        });
+      });
+    },
+  },
+);

@@ -1,4 +1,5 @@
-import { ensureString, materializeByArgType } from "./shared/util.ts";
+import { ensureString } from "./shared/util.ts";
+import { Block, MultiColumnLayoutBlock } from "./deps.ts";
 import type { Task } from "./task.ts";
 import type { Option } from "./option.ts";
 
@@ -15,52 +16,157 @@ interface HelpMessageOpts {
   usageDescription?: string;
   subCommandsList?: Record<string, string>;
   optionsList?: Record<string, string>;
+  argumentsList?: Record<string, string>;
 }
 
-function displayTwoColumnList(
-  list: Record<string, string>,
-  spacing = "    ",
-): string {
-  const longestKey = Object.keys(list).reduce(
-    (acc, current) => acc >= current.length ? acc : current.length,
-    0,
-  );
-
-  return Object.entries(list).map(([name, desc]) => {
-    return `${spacing}${name.padEnd(longestKey)}${spacing}${desc}`;
-  })
-    .join("\n");
+enum SystemMessages {
+  DescriptionNotProvided = "[No description provided]",
 }
 
-function formatBlockList(
+// adds a block at the top for title then rows of 2 columns blocks
+function titledList(
   title: string,
   list: Record<string, string>,
-): string {
-  return `${title}:
-${displayTwoColumnList(list)}
-`;
+  paddingX: number,
+  paddingY: number,
+): Block[] {
+  const blocks: Block[] = [];
+
+  const indentSize = paddingX * 2;
+
+  blocks.push(
+    new Block(title, {
+      paddingLeft: paddingX,
+      paddingRight: paddingX,
+      paddingTop: paddingY,
+      paddingBottom: paddingY,
+    }),
+  );
+
+  // find largest key length and use that as the fixed width for the left column
+  const fixedLeftColumnWidth = Math.max(
+    ...Object.keys(list).map((key) => key.length),
+  );
+
+  Object.entries(list).forEach(([name, desc]) => {
+    const keyBlock = new Block(name, {
+      width: fixedLeftColumnWidth,
+    });
+
+    const valueBlock = new Block(desc);
+
+    blocks.push(
+      new MultiColumnLayoutBlock(
+        {
+          blocks: [keyBlock, valueBlock],
+          marginX: paddingX,
+          paddingLeft: paddingX + indentSize,
+          paddingRight: paddingX,
+          // paddingBottom: paddingY, // let next block handle this
+        },
+      ),
+    );
+  });
+
+  return blocks;
 }
 
-function buildHelpMessage(
+function outputHelpMessage(
   {
     title,
     description,
-    // usageExamplesList,
     usageDescription,
     subCommandsList,
     optionsList,
+    argumentsList,
   }: HelpMessageOpts,
-): string {
-  return [
-    title,
-    description,
-    // usageExamplesList && formatBlockList("Usage", usageExamplesList),
-    usageDescription,
-    subCommandsList && Object.values(subCommandsList).length > 0 &&
-    formatBlockList("Sub commands", subCommandsList),
-    optionsList && Object.values(optionsList).length > 0 &&
-    formatBlockList("Options", optionsList),
-  ].filter((x) => x).map((y) => y && y.trim()).join("\n\n") + "\n";
+): void {
+  const paddingX = 2;
+  const paddingY = 1;
+
+  let blocks: Block[] = [];
+
+  blocks.push(
+    new Block(title, {
+      paddingLeft: paddingX,
+      paddingRight: paddingX,
+      paddingTop: paddingY,
+      // paddingBottom: paddingY, // let next block handle this
+    }),
+  );
+
+  if (description) {
+    blocks.push(
+      new Block(description, {
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+        paddingTop: paddingY,
+        // paddingBottom: paddingY, // let next block handle this
+      }),
+    );
+  }
+
+  if (usageDescription) {
+    blocks.push(
+      new Block(usageDescription, {
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+        paddingTop: paddingY,
+        // paddingBottom: paddingY, // let next block handle this
+      }),
+    );
+  }
+
+  if (subCommandsList && Object.values(subCommandsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Sub commands",
+      subCommandsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
+  if (argumentsList && Object.values(argumentsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Arguments",
+      argumentsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
+  if (optionsList && Object.values(optionsList).length > 0) {
+    blocks = blocks.concat(titledList(
+      "Options",
+      optionsList,
+      paddingX,
+      paddingY,
+    ));
+  }
+
+  let width: number = 120;
+
+  // some terminals or runtimes don't provide this, so consoleSize errors.  In those cases, default to the width above.
+  try {
+    const { columns } = Deno.consoleSize();
+    width = columns;
+  } catch (e) {
+    // ignore
+  }
+
+  let lines: string[] = [];
+  blocks.forEach((block) => {
+    const iter = block.render(width);
+
+    for (const line of iter) {
+      lines.push(line.trimEnd());
+    }
+  });
+
+  // add a blank line at the end.  later this is fixed by a Stack component in the format package.
+  lines.push("");
+
+  console.log(lines.join("\n"));
 }
 
 const commands = {
@@ -89,18 +195,47 @@ function commaDelimitedList(arr: Array<string>): string {
 }
 
 function displayHelpForTask(task: Task<unknown>): void {
-  console.log(buildHelpMessage({
-    title: task.name,
-    description: task.desc,
-    optionsList: [...task.options].reduce(
-      (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-      {},
-    ),
-    subCommandsList: [...task.subTasks].reduce(
-      (sum, [name, option]) => ({ ...sum, [name]: option.desc }),
-      {},
-    ),
-  }));
+  const title = task.name;
+  const description = task.desc;
+
+  const optionsList: Record<string, string> = [...task.options].reduce<
+    Record<string, string>
+  >(
+    (sum, [name, option]) => ({
+      ...sum,
+      [`--${name}`]: option.desc || SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
+  const argumentsList: Record<string, string> = [...task.arguments].reduce<
+    Record<string, string>
+  >(
+    (sum, argument) => ({
+      ...sum,
+      [`<${argument.name}>`]: argument.desc ||
+        SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
+  const subCommandsList: Record<string, string> = [...task.subTasks].reduce<
+    Record<string, string>
+  >(
+    (sum, [name, option]) => ({
+      ...sum,
+      [name]: option.desc || SystemMessages.DescriptionNotProvided,
+    }),
+    {},
+  );
+
+  outputHelpMessage({
+    title,
+    description,
+    optionsList,
+    subCommandsList,
+    argumentsList,
+  });
 }
 
 async function run(
@@ -132,9 +267,7 @@ async function run(
           options,
         });
       } else {
-        // console.log("the help message");
         displayHelpForTask(task);
-        // Deno.exit(1);
         return;
       }
     } else {
@@ -151,16 +284,15 @@ async function run(
 
   const namedThings: Record<string, unknown> = {};
 
-  // await new Promise((resolve) => resolve(null));
-
   for (const [index, argument] of task.arguments.entries()) {
     const nonSymbolName = withoutSymbol(argument.name);
 
     if (args[index] || argument.required) {
-      namedThings[nonSymbolName] = materializeByArgType(
-        argument.type,
+      const val = argument.materializeAndEnsureValid(
         args[index],
       );
+
+      namedThings[nonSymbolName] = await val;
     } else {
       namedThings[nonSymbolName] = undefined;
     }
@@ -196,6 +328,7 @@ async function run(
     );
   }
 
+  // load options into namedThings based on the task's options list and requirement.
   for (const [name, option] of task.options.entries()) {
     const nonSymbolName = withoutSymbol(name);
 
@@ -203,10 +336,12 @@ async function run(
       Object.prototype.hasOwnProperty.call(options, nonSymbolName) ||
       option.required
     ) {
-      namedThings[nonSymbolName] = materializeByArgType(
-        option.type,
+      const val = option.materializeAndEnsureValid(
         options[nonSymbolName],
       );
+
+      // await val if its a promise
+      namedThings[nonSymbolName] = await val;
     } else {
       namedThings[nonSymbolName] = undefined;
     }
@@ -225,4 +360,4 @@ function withoutSymbol(item: string | number | symbol): string | number {
   }
 }
 
-export { run };
+export { run, SystemMessages };

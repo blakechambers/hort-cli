@@ -14,17 +14,13 @@ function list({ foo, quiet }: ListOpts): void {
 const task = buildTask(list, (t) => {
   t.desc = "This is just a simple task to list things";
 
-  t.addArgument("foo", (a) => {
+  t.addArgument("foo", ArgTypes.String, (a) => {
     a.desc = "A required argument";
     a.required = true;
-
-    a.type = ArgTypes.String;
   });
 
-  t.addOption("quiet", (o) => {
+  t.addOption("quiet", ArgTypes.Boolean, (o) => {
     o.desc = "decrease the output text";
-
-    o.type = ArgTypes.Boolean;
     o.required = false;
   });
 });
