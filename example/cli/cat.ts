@@ -1,5 +1,5 @@
+import { readLines } from "https://deno.land/std@0.191.0/io/read_lines.ts";
 import { ArgTypes, buildTask } from "../../mod.ts";
-import { readLines } from "https://deno.land/std/io/read_lines.ts";
 
 interface CatOpts {
   file: Deno.FsFile;
@@ -11,8 +11,6 @@ async function cat({ file }: CatOpts) {
 
   const fileInfo = await file.stat();
   if (!fileInfo.isFile) throw new Error("Not a file");
-
-  const buf = new Uint8Array(100);
 
   for await (const line of readLines(file)) {
     console.log(line);

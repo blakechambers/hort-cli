@@ -288,11 +288,13 @@ async function run(
     const nonSymbolName = withoutSymbol(argument.name);
 
     if (args[index] || argument.required) {
-      const val = argument.materializeAndEnsureValid(
-        args[index],
-      );
-
-      namedThings[nonSymbolName] = await val;
+      try {
+        namedThings[nonSymbolName] = await argument.materializeAndEnsureValid(
+          args[index],
+        );
+      } catch (error) {
+        throw error;
+      }
     } else {
       namedThings[nonSymbolName] = undefined;
     }
@@ -336,18 +338,23 @@ async function run(
       Object.prototype.hasOwnProperty.call(options, nonSymbolName) ||
       option.required
     ) {
-      const val = option.materializeAndEnsureValid(
-        options[nonSymbolName],
-      );
-
-      // await val if its a promise
-      namedThings[nonSymbolName] = await val;
+      try {
+        namedThings[nonSymbolName] = await option.materializeAndEnsureValid(
+          options[nonSymbolName],
+        );
+      } catch (error) {
+        throw error;
+      }
     } else {
       namedThings[nonSymbolName] = undefined;
     }
   }
 
-  await task.call(namedThings);
+  try {
+    await task.call(namedThings);
+  } catch (error) {
+    throw error;
+  }
 
   return;
 }

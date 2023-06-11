@@ -1,5 +1,5 @@
 import { Directory } from "./directory.ts";
-import { assertEquals, assertThrows, assertThrowsAsync } from "../test_deps.ts";
+import { assertEquals } from "../test_deps.ts";
 
 const { test } = Deno;
 

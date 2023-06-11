@@ -1,5 +1,3 @@
-import { ensureDirSync } from "https://deno.land/std/fs/mod.ts";
-
 interface DirectoryConstructOptions {
   path: string;
   ensureExists?: boolean; // default: false
