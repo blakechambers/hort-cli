@@ -9,6 +9,7 @@ const { test } = Deno;
 test({
   name: "runner – happy path with no args",
   fn: async () => {
+    // deno-lint-ignore no-empty-interface
     interface ListOpts {
     }
 
@@ -80,6 +81,7 @@ test({
       (
         { args, options, expectedErrorMsg },
       ) => {
+        // deno-lint-ignore no-empty-interface
         interface ListOpts {
         }
 
@@ -115,6 +117,7 @@ test({
       baz: string;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ foo, bar, baz }: ListOpts): void {
     }
 
@@ -151,6 +154,7 @@ test({
       aBool: boolean;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ aBool }: ListOpts): void {
     }
     interface Case {
@@ -269,6 +273,7 @@ test({
       aNumber: number;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ aNumber }: ListOpts): void {
     }
     interface Case {
@@ -333,6 +338,7 @@ test({
       aStr: string;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ aStr }: ListOpts): void {
     }
     interface Case {
@@ -430,6 +436,7 @@ test({
       bar?: boolean;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ foo, bar }: ListOpts): void {
     }
 
@@ -468,6 +475,7 @@ test({
       quiet: boolean;
     }
 
+    // deno-lint-ignore no-unused-vars
     function child({ quiet }: ListOpts): void {
     }
 
@@ -511,6 +519,7 @@ test({
 test({
   name: "runner - traversing subtasks when args do not match",
   fn: async () => {
+    // deno-lint-ignore no-empty-interface
     interface ListOpts {
     }
 
@@ -570,9 +579,11 @@ test({
       baz: string;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ foo, bar, baz }: ListOpts): void {
     }
 
+    // deno-lint-ignore no-unused-vars
     const [listSpy, callArgs] = buildSpy(list);
     const [consoleSpy, resetConsoleSpy] = mockPropOnGlobal(
       console,
@@ -638,6 +649,7 @@ test({
       foo: Foo;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ foo }: ListOpts): void {
     }
 
@@ -680,6 +692,7 @@ test({
       foo: Foo;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ foo }: ListOpts): void {
     }
 
@@ -719,6 +732,7 @@ test({
       foo: Directory;
     }
 
+    // deno-lint-ignore no-unused-vars
     function list({ foo }: ListOpts): void {
     }
 
