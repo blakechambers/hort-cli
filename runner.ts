@@ -1,7 +1,6 @@
 import { ensureString } from "./shared/util.ts";
 import { Block, MultiColumnLayoutBlock } from "./deps.ts";
 import type { Task } from "./task.ts";
-import type { Option } from "./option.ts";
 
 interface RunOpts {
   task: Task<any>;
