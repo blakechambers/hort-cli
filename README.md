@@ -73,14 +73,14 @@ if (import.meta.main) {
 }
 ```
 
-Assuming this is stored in `simple.ts`, from cli you can run:
+This example lives in `example/simple.ts`. From the repository root you can run:
 
 ```
-% deno run simple.ts Person
+% deno run example/simple.ts Person
 Hello, Person!!!
-% deno run simple.ts Person --quiet
+% deno run example/simple.ts Person --quiet
 Hello, Person.
-% deno run simple.ts
+% deno run example/simple.ts
 error: Uncaught (in promise) Error: Type error – requires a string
     throw new Error("Type error – requires a string");
           ^ [...]
@@ -89,7 +89,7 @@ error: Uncaught (in promise) Error: Type error – requires a string
 Additionally, hort supports help text output:
 
 ```
-% deno run simple.ts --help
+% deno run example/simple.ts --help
 helloWorld
 
 A simple hello world task. Nothing fancy here.
@@ -104,7 +104,30 @@ Options
 ```
 
 Beyond what's shown in this example, hort supports nesting tasks and building
-tasks from a directory (see [examples](./examples)).
+tasks from a directory. The `example/cli.ts` script demonstrates subcommands:
+
+```typescript
+import { main, Task } from "../mod.ts";
+import { task as listTask } from "./cli/list.ts";
+import { task as catTask } from "./cli/cat.ts";
+
+if (import.meta.main) {
+  const t = new Task("Pom", undefined, (t) => {
+    t.desc = "A simple example wrapper for Hort CLI";
+    t.addSubTask(listTask);
+    t.addSubTask(catTask);
+  });
+
+  main(t);
+}
+```
+
+Try it out with:
+
+```bash
+deno run example/cli.ts list foo
+deno run --allow-read example/cli.ts cat example/cli/cat.ts
+```
 
 ## Motivation
 
