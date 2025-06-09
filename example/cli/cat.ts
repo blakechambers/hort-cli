@@ -1,4 +1,4 @@
-import { readLines } from "https://deno.land/std@0.191.0/io/read_lines.ts";
+import { readLines } from "@std/io/read_lines";
 import { ArgTypes, buildTask } from "../../mod.ts";
 
 interface CatOpts {
