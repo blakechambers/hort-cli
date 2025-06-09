@@ -31,7 +31,7 @@ class StringOption<TParams> extends Option<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): string {
     return ensureString(arg);
@@ -45,7 +45,7 @@ class BooleanOption<TParams> extends Option<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): boolean {
     return ensureBoolean(arg);
@@ -59,7 +59,7 @@ class NumberOption<TParams> extends Option<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): number {
     return ensureNumber(arg);
@@ -81,7 +81,7 @@ class EnumOption<TParams> extends Option<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): string {
     const value = ensureString(arg);
@@ -113,7 +113,7 @@ class FileOption<TParams> extends Option<TParams> {
     if (proc) proc(this);
   }
 
-  async materializeAndEnsureValid(
+  override async materializeAndEnsureValid(
     arg: string | number | boolean,
   ) {
     const value = ensureString(arg);
@@ -151,7 +151,7 @@ class DirectoryOption<TParams> extends Option<TParams> {
     if (proc) proc(this);
   }
 
-  async materializeAndEnsureValid(
+  override async materializeAndEnsureValid(
     arg: string | number | boolean,
   ) {
     const value = ensureString(arg);

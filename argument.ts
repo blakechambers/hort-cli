@@ -34,7 +34,7 @@ class StringArgument<TParams> extends Argument<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): string {
     return ensureString(arg);
@@ -51,7 +51,7 @@ class BooleanArgument<TParams> extends Argument<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): boolean {
     return ensureBoolean(arg);
@@ -68,7 +68,7 @@ class NumberArgument<TParams> extends Argument<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): number {
     return ensureNumber(arg);
@@ -88,7 +88,7 @@ class EnumArgument<TParams> extends Argument<TParams> {
     if (proc) proc(this);
   }
 
-  materializeAndEnsureValid(
+  override materializeAndEnsureValid(
     arg: string | number | boolean,
   ): string {
     const argStr = ensureString(arg);
@@ -114,7 +114,7 @@ class FileArgument<TParams> extends Argument<TParams> {
     if (proc) proc(this);
   }
 
-  async materializeAndEnsureValid(
+  override async materializeAndEnsureValid(
     arg: string | number | boolean,
   ) {
     const value = ensureString(arg);
@@ -156,7 +156,7 @@ class DirectoryArgument<TParams> extends Argument<TParams> {
     if (proc) proc(this);
   }
 
-  async materializeAndEnsureValid(
+  override async materializeAndEnsureValid(
     arg: string | number | boolean,
   ) {
     const value = ensureString(arg);

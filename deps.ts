@@ -1,4 +1,4 @@
-export { parseArgs } from "@std/cli/parse_args";
+export { parseArgs } from "@std/cli/parse-args";
 export { resolve } from "@std/path";
 export { expandGlob } from "@std/fs";
 export {
