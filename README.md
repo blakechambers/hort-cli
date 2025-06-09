@@ -50,7 +50,7 @@ const task = buildTask(helloWorld, (t) => {
     a.required = true;
   });
 
-  // adds an option.  this value would be specificed as --quiet, --quiet=true,
+  // adds an option.  this value would be specified as --quiet, --quiet=true,
   // --quiet=1, etc. Since this is `required=false`, it is optional. If you
   // wanted to make it required, you could set `required=true`.
   t.addOption("quiet", ArgTypes.Boolean, (o) => {
@@ -94,8 +94,13 @@ helloWorld
 
 A simple hello world task. Nothing fancy here.
 
-Options:
-    quiet    Calms the greeting.  No need for all the spice!
+Arguments
+
+    <name>  Who should we say hello to?
+
+Options
+
+    --quiet  Calms the greeting.  No need for all the spice!
 ```
 
 Beyond what's shown in this example, hort supports nesting tasks and building
