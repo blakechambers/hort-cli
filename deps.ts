@@ -1,6 +1,6 @@
-export { parse } from "https://deno.land/std@0.224.0/flags/mod.ts";
-export { resolve } from "https://deno.land/std@0.224.0/path/mod.ts";
-export { expandGlob } from "https://deno.land/std@0.224.0/fs/mod.ts";
+export { parseArgs } from "@std/cli/parse_args";
+export { resolve } from "@std/path";
+export { expandGlob } from "@std/fs";
 export {
   Block,
   MultiColumnLayoutBlock,
