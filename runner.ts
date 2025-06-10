@@ -145,11 +145,14 @@ function outputHelpMessage(
 
   let width: number = 120;
 
-  // some terminals or runtimes don't provide this, so consoleSize errors.  In those cases, default to the width above.
+  // some environments return a width of 0 which leads to excessive line
+  // wrapping. Fall back to the default when that happens.
   try {
     const { columns } = Deno.consoleSize();
-    width = columns;
-  } catch (e) {
+    if (columns > 0) {
+      width = columns;
+    }
+  } catch (_e) {
     // ignore
   }
 
