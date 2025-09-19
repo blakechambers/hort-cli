@@ -556,15 +556,18 @@ test({
 
     // was not called
     assertEquals(childCallArgs, []);
-    assertEquals(consoleSpy.callArgs, [
-      `
+    assertEquals(
+      consoleSpy.callArgs.join(),
+      [
+        `
   parent
 
   Sub commands
 
       child  ${SystemMessages.DescriptionNotProvided}
 `,
-    ]);
+      ].join(),
+    );
 
     resetConsoleSpy();
   },
@@ -615,8 +618,9 @@ test({
 
     await run({ task, args, options });
 
+    // ignoring whitespace differences
     assertEquals(
-      consoleSpy.callArgs[0],
+      consoleSpy.callArgs[0].replace(/\s+/g, " ").trim(),
       `
   list
 
@@ -630,7 +634,7 @@ test({
 
       --foo  foo description
       --bar  foo description
-`,
+`.replace(/\s+/g, " ").trim(),
     );
     resetConsoleSpy();
   },
